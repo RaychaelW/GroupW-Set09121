@@ -1,4 +1,4 @@
-project(setup)
+project(the_quest)
 cmake_minimum_required(VERSION 3.11)
 
 # Require modern C++
@@ -17,16 +17,16 @@ set(SFML_INCS "lib/SFML/include")
 link_directories("${CMAKE_BINARY_DIR}/lib/SFML/lib")
 
 #### Game Project ####
-add_executable(game
-    main.cpp
-    game.cpp
+add_executable(the_quest
+        src/main.cpp
+        src/game.cpp
 )
 
 # Include SFML headers
-target_include_directories(game PRIVATE ${SFML_INCS})
+target_include_directories(the_quest PRIVATE ${SFML_INCS})
 
 # Link required SFML modules
-target_link_libraries(game
+target_link_libraries(the_quest
     sfml-graphics
     sfml-window
     sfml-system
