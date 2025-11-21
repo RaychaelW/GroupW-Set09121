@@ -27,6 +27,8 @@ add_executable(the_quest
         src/mainMenuState.hpp
         src/gameState.cpp
         src/gameState.hpp
+        src/InputManager.cpp
+        src/InputManager.hpp
 )
 
 # Include SFML headers

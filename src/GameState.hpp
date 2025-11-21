@@ -7,6 +7,8 @@
 
 
 #pragma once
+#include "Game.hpp"
+#include "InputManager.hpp"
 #include "State.hpp"
 #include "StateManager.hpp"
 
@@ -20,6 +22,7 @@ public:
 
 private:
     StateManager& manager;
+    InputManager input;
 };
 
 

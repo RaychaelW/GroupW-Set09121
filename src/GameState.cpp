@@ -5,6 +5,7 @@
 #include "GameState.hpp"
 #include <iostream>
 
+
 GameState::GameState(StateManager& manager)
     : manager(manager)
 {}
@@ -23,7 +24,22 @@ void GameState::handleInput(sf::RenderWindow& window) {
     }
 }
 
-void GameState::update(float dt) {}
+void GameState::update(float dt) {
+    input.update();
+
+    if (input.isKeyPressed(sf::Keyboard::A)) {
+        //player.moveLeft(); commented out for now until player controls is implemented
+    }
+
+    if (input.isKeyPressed(sf::Keyboard::D)) {
+        //player.moveRight();  commented out for now until player controls is implemented
+    }
+
+    if (input.isKeyPressedOnce(sf::Keyboard::Escape)) {
+        // open pause menu
+    }
+
+}
 
 void GameState::render(sf::RenderWindow& window) {
     // TEMP placeholder
