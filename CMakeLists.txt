@@ -20,6 +20,13 @@ link_directories("${CMAKE_BINARY_DIR}/lib/SFML/lib")
 add_executable(the_quest
         src/main.cpp
         src/game.cpp
+        src/state.hpp
+        src/stateManager.hpp
+        src/stateManager.cpp
+        src/mainMenuState.cpp
+        src/mainMenuState.hpp
+        src/gameState.cpp
+        src/gameState.hpp
 )
 
 # Include SFML headers
