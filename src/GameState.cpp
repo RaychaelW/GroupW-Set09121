@@ -16,6 +16,9 @@ void GameState::handleInput(sf::RenderWindow& window) {
         if (event.type == sf::Event::Closed)
             window.close();
 
+        input.update(); //use Input manager
+        player.handleInput(); // let the player read input(WASD)
+
         if (event.type == sf::Event::KeyPressed &&
             event.key.code == sf::Keyboard::Escape)
         {
@@ -26,6 +29,7 @@ void GameState::handleInput(sf::RenderWindow& window) {
 
 void GameState::update(float dt) {
     input.update();
+    player.update(dt);
 
     if (input.isKeyPressed(sf::Keyboard::A)) {
         //player.moveLeft(); commented out for now until player controls is implemented
@@ -42,9 +46,5 @@ void GameState::update(float dt) {
 }
 
 void GameState::render(sf::RenderWindow& window) {
-    // TEMP placeholder
-    sf::CircleShape player(30);
-    player.setFillColor(sf::Color::Green);
-    player.setPosition(300, 300);
-    window.draw(player);
+    player.render(window);
 }
