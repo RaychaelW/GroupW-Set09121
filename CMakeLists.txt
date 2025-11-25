@@ -33,6 +33,12 @@ add_executable(the_quest
         src/InputManager.hpp
         src/Player.cpp
         src/Player.hpp
+        src/Animation.hpp
+        src/Animation.cpp
+        src/Enemy.cpp
+        src/Enemy.hpp
+        src/Obstacle.hpp
+        src/Obstacle.cpp
 )
 
 # Include SFML headers

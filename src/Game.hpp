@@ -2,6 +2,8 @@
 #include <SFML/Graphics.hpp>
 #include "StateManager.hpp"
 
+// Game objects
+#include "Player.hpp"
 
 class Game {
 public:
@@ -11,4 +13,9 @@ public:
 private:
     sf::RenderWindow window;
     StateManager stateManager;
+
+    // ===== GAME OBJECTS =====
+    Player player;
+    Enemy enemy1;
+    Enemy enemy2;
 };

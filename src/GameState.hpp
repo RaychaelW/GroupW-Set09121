@@ -1,16 +1,10 @@
-//
-// Created by prais on 18/11/2025.
-//
-
-#ifndef THE_QUEST_GAMESTATE_HPP
-#define THE_QUEST_GAMESTATE_HPP
-
-
 #pragma once
-#include "Player.hpp"
-#include "InputManager.hpp"
 #include "State.hpp"
+#include "Player.hpp"
+#include "Obstacle.hpp"
 #include "StateManager.hpp"
+#include <vector>
+#include <memory>
 
 class GameState : public State {
 public:
@@ -21,11 +15,13 @@ public:
     void render(sf::RenderWindow& window) override;
 
 private:
+    void spawnObstacle();
+
     StateManager& manager;
-    InputManager input;
     Player player;
+    std::vector<std::unique_ptr<Obstacle>> obstacles;
+
+    float spawnTimer = 0.f;
+    float spawnInterval = 1.5f;
+    float scrollSpeed = 300.f;
 };
-
-
-
-#endif //THE_QUEST_GAMESTATE_HPP

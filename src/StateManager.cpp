@@ -1,7 +1,3 @@
-//
-// Created by prais on 18/11/2025.
-//
-
 #include "StateManager.hpp"
 
 void StateManager::push(std::unique_ptr<State> state) {
@@ -14,8 +10,7 @@ void StateManager::pop() {
 }
 
 State* StateManager::getCurrent() {
-    if (states.empty()) return nullptr;
+    if (states.empty())
+        return nullptr;
     return states.top().get();
 }
-
-
