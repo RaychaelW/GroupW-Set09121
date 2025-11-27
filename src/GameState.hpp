@@ -1,10 +1,10 @@
 #pragma once
+#include <SFML/Graphics.hpp>
+#include <memory>
+#include <vector>
 #include "State.hpp"
 #include "Player.hpp"
 #include "Obstacle.hpp"
-#include "StateManager.hpp"
-#include <vector>
-#include <memory>
 
 class GameState : public State {
 public:
@@ -15,13 +15,15 @@ public:
     void render(sf::RenderWindow& window) override;
 
 private:
-    void spawnObstacle();
-
     StateManager& manager;
     Player player;
+
     std::vector<std::unique_ptr<Obstacle>> obstacles;
 
     float spawnTimer = 0.f;
-    float spawnInterval = 1.5f;
-    float scrollSpeed = 300.f;
+    float spawnInterval = 2.f;
+
+    bool playerCollidingLastFrame = false;
+
+    void spawnObstacle();
 };

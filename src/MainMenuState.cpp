@@ -6,10 +6,18 @@ MainMenuState::MainMenuState(StateManager& manager)
     : manager(manager)
 {
     font.loadFromFile("resources/fonts/arial.ttf");
-    title.setFont(font);
-    title.setString("The Quest\nPress ENTER to Play");
-    title.setCharacterSize(25);
-    title.setPosition(100, 100);
+
+    titleText.setFont(font);
+    titleText.setString("THE QUEST");
+    titleText.setCharacterSize(60);
+    titleText.setFillColor(sf::Color::White);
+    titleText.setPosition(200, 150);
+
+    startText.setFont(font);
+    startText.setString("Press ENTER to start");
+    startText.setCharacterSize(30);
+    startText.setFillColor(sf::Color::White);
+    startText.setPosition(220, 300);
 }
 
 void MainMenuState::handleInput(sf::RenderWindow& window) {
@@ -17,17 +25,16 @@ void MainMenuState::handleInput(sf::RenderWindow& window) {
     while (window.pollEvent(event)) {
         if (event.type == sf::Event::Closed)
             window.close();
+    }
 
-        if (event.type == sf::Event::KeyPressed &&
-            event.key.code == sf::Keyboard::Enter)
-        {
-            manager.push(std::make_unique<GameState>(manager));
-        }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
+        manager.pushState(std::make_unique<GameState>(manager));
     }
 }
 
 void MainMenuState::update(float dt) {}
 
 void MainMenuState::render(sf::RenderWindow& window) {
-    window.draw(title);
+    window.draw(titleText);
+    window.draw(startText);
 }

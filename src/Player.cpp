@@ -9,15 +9,16 @@ Player::Player() {
 
 void Player::handleInput() {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-        shape.move(0.f, -speed * 0.016f); // assuming ~60 FPS
+        shape.move(0.f, -speed * 0.016f);
+
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
         shape.move(0.f, speed * 0.016f);
 }
 
 void Player::update(float dt) {
-    // You can add bounds checking here
     if (shape.getPosition().y < 0)
         shape.setPosition(shape.getPosition().x, 0);
+
     if (shape.getPosition().y > 550)
         shape.setPosition(shape.getPosition().x, 550);
 }

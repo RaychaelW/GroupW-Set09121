@@ -2,9 +2,6 @@
 #include <SFML/Graphics.hpp>
 #include "StateManager.hpp"
 
-// Game objects
-#include "Player.hpp"
-
 class Game {
 public:
     Game();
@@ -12,10 +9,10 @@ public:
 
 private:
     sf::RenderWindow window;
+    sf::Clock clock;
     StateManager stateManager;
 
-    // ===== GAME OBJECTS =====
-    Player player;
-    Enemy enemy1;
-    Enemy enemy2;
+    void processInput();
+    void update(float dt);
+    void render();
 };

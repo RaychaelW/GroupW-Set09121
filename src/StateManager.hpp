@@ -1,14 +1,14 @@
 #pragma once
-#include "State.hpp"
 #include <memory>
-#include <stack>
+#include <vector>
+#include "State.hpp"
 
 class StateManager {
 public:
-    void push(std::unique_ptr<State> state);
-    void pop();
-    State* getCurrent();
+    void pushState(std::unique_ptr<State> state);
+    void popState();
+    State* getActiveState();
 
 private:
-    std::stack<std::unique_ptr<State>> states;
+    std::vector<std::unique_ptr<State>> states;
 };

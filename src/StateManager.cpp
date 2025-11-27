@@ -1,16 +1,15 @@
 #include "StateManager.hpp"
 
-void StateManager::push(std::unique_ptr<State> state) {
-    states.push(std::move(state));
+void StateManager::pushState(std::unique_ptr<State> state) {
+    states.push_back(std::move(state));
 }
 
-void StateManager::pop() {
+void StateManager::popState() {
     if (!states.empty())
-        states.pop();
+        states.pop_back();
 }
 
-State* StateManager::getCurrent() {
-    if (states.empty())
-        return nullptr;
-    return states.top().get();
+State* StateManager::getActiveState() {
+    if (states.empty()) return nullptr;
+    return states.back().get();
 }

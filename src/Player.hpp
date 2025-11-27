@@ -5,7 +5,7 @@ class Player {
 public:
     Player();
 
-    void handleInput();
+    void handleInput();   // <-- no dt!
     void update(float dt);
     void render(sf::RenderWindow& window);
 
@@ -15,4 +15,3 @@ private:
     sf::CircleShape shape;
     float speed = 300.f;
 };
-

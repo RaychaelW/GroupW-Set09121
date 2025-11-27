@@ -10,6 +10,8 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
+class StateManager;
+
 class State {
 public:
     virtual ~State() = default;

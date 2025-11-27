@@ -2,7 +2,7 @@
 #include <iostream>
 
 Enemy::Enemy(float x, float y) {
-    if (!texture.loadFromFile("resources/textures/enemy.png")) {
+    if (!texture.loadFromFile("resources/textures/enemies/snail_walk.png")) {
         std::cerr << "Failed to load enemy.png!" << std::endl;
     }
 
