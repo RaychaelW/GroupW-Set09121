@@ -16,6 +16,10 @@ add_subdirectory("lib/SFML")
 set(SFML_INCS "lib/SFML/include")
 link_directories("${CMAKE_BINARY_DIR}/lib/SFML/lib")
 
+add_subdirectory(lib/tmxlite/tmxlite)
+set(SFML_INCS "lib/tmxlite/tmxlite/include")
+
+
 file(COPY resources/textures DESTINATION ${CMAKE_BINARY_DIR})
 
 #### Game Project ####
@@ -33,6 +37,12 @@ add_executable(the_quest
         src/InputManager.hpp
         src/Player.cpp
         src/Player.hpp
+        src/Tilemap.cpp
+        src/Tilemap.hpp
+        src/Enemy.cpp
+        src/Enemy.hpp
+        src/ResourceManager.hpp
+        src/ResourceManager.cpp
 )
 
 # Include SFML headers
@@ -43,4 +53,5 @@ target_link_libraries(the_quest
     sfml-graphics
     sfml-window
     sfml-system
+    tmxlite
 )

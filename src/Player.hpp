@@ -22,6 +22,14 @@ public:
         return sprite;
     }
 
+    sf::Vector2f getPosition() const {
+        return sprite.getPosition();
+    }
+
+    void setPosition(const sf::Vector2f& pos) {
+        sprite.setPosition(pos);
+    }
+
 private:
     InputManager input;
     sf::Sprite sprite;

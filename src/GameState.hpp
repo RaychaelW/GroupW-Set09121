@@ -11,6 +11,11 @@
 #include "InputManager.hpp"
 #include "State.hpp"
 #include "StateManager.hpp"
+#include <SFML/Graphics.hpp>
+
+#include "TileMap.hpp"
+#include "tmxlite/Map.hpp"
+
 
 class GameState : public State {
 public:
@@ -20,10 +25,17 @@ public:
     void update(float dt) override;
     void render(sf::RenderWindow& window) override;
 
+
 private:
     StateManager& manager;
+    sf::RenderWindow window;
     InputManager input;
     Player player;
+    TileMap map;
+    sf::View view; //gameplay camera
+    sf::View full = map.getFullMapView(); //full map
+
+
 };
 
 
