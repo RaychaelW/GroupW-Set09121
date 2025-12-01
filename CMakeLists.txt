@@ -20,7 +20,7 @@ add_subdirectory(lib/tmxlite/tmxlite)
 set(SFML_INCS "lib/tmxlite/tmxlite/include")
 
 
-file(COPY resources/textures DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY resources DESTINATION ${CMAKE_BINARY_DIR})
 
 #### Game Project ####
 add_executable(the_quest
@@ -39,8 +39,8 @@ add_executable(the_quest
         src/Player.hpp
         src/Tilemap.cpp
         src/Tilemap.hpp
-        src/Enemy.cpp
-        src/Enemy.hpp
+        #src/Enemy.cpp
+        #src/Enemy.hpp
         src/ResourceManager.hpp
         src/ResourceManager.cpp
 )
