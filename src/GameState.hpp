@@ -12,6 +12,9 @@
 #include "State.hpp"
 #include "StateManager.hpp"
 #include <SFML/Graphics.hpp>
+#include <algorithm>
+#include <iostream>
+
 
 #include "TileMap.hpp"
 #include "tmxlite/Map.hpp"

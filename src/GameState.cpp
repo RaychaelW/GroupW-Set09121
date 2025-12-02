@@ -6,8 +6,6 @@
 #include "ResourceManager.hpp"
 #include <iostream>
 
-#include "Enemy.hpp"
-
 
 GameState::GameState(StateManager& manager)
     : manager(manager)
@@ -38,7 +36,6 @@ void GameState::handleInput(sf::RenderWindow& window) {
             }
         }
 
-
         if (event.type == sf::Event::Closed)
             window.close();
 
@@ -52,8 +49,7 @@ void GameState::handleInput(sf::RenderWindow& window) {
 
 void GameState::update(float dt) {
     input.update();
-    player.update(dt);
-    view.setCenter(player.getPosition());
+    player.update(dt, window);
 
     if (input.isKeyPressedOnce(sf::Keyboard::Escape)) {
         // open pause menu
@@ -62,7 +58,7 @@ void GameState::update(float dt) {
 
 
 void GameState::render(sf::RenderWindow& window) {
-    window.setView(window.getView());
+    window.setView(full);
     window.draw(map);
     player.render(window);
 

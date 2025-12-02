@@ -2,7 +2,7 @@ project(the_quest)
 cmake_minimum_required(VERSION 3.11)
 
 # Require modern C++
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #### Setup Directories ####
@@ -18,7 +18,6 @@ link_directories("${CMAKE_BINARY_DIR}/lib/SFML/lib")
 
 add_subdirectory(lib/tmxlite/tmxlite)
 set(SFML_INCS "lib/tmxlite/tmxlite/include")
-
 
 file(COPY resources DESTINATION ${CMAKE_BINARY_DIR})
 
