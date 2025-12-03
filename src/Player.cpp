@@ -6,6 +6,8 @@
 #include <SFML/Graphics.hpp>
 #include "ResourceManager.hpp"
 #include <iostream>
+#include <tmxlite/Map.hpp>
+#include "Tilemap.hpp"
 
 
 Player::Player() {
@@ -42,6 +44,7 @@ void Player::updateAnimation(float dt) {
             sprite.setTextureRect(sf::IntRect(f.x, f.y, f.width, f.height));
         }
 
+        //turn around when walking
         sprite.setScale(facingRight ? 1.f : -1.f, 1.f);
         if (!facingRight)
             sprite.setOrigin(128, 0);
@@ -85,7 +88,7 @@ void Player::handleInput() {
 }
 
 
-void Player::update(float dt, const sf::RenderWindow& window) {
+void Player::update(float dt) {
     //apply gravity
     velocity.y += gravity * dt;
 
@@ -99,6 +102,7 @@ void Player::update(float dt, const sf::RenderWindow& window) {
         isGrounded = true;
     }
 
+
     const sf::FloatRect bounds = sprite.getGlobalBounds(); //get player bounds
     // Top collision
     if (bounds.top < 0) {
@@ -108,21 +112,17 @@ void Player::update(float dt, const sf::RenderWindow& window) {
     if (bounds.left < 0) {
         velocity.x = 0.f;
     }
-
     /* doesn't work for now
     if (bounds.left + bounds.width > window.getSize().x) {
         velocity.x = 0.f;
     }
     */
 
-
     updateAnimation(dt); //animate
 
 }
 
 
-
 void Player::render(sf::RenderWindow& window) {
-
     window.draw(sprite);
 }

@@ -38,10 +38,12 @@ add_executable(the_quest
         src/Player.hpp
         src/Tilemap.cpp
         src/Tilemap.hpp
-        #src/Enemy.cpp
-        #src/Enemy.hpp
         src/ResourceManager.hpp
         src/ResourceManager.cpp
+        src/Hazard.cpp
+        src/Hazard.hpp
+        src/Enemy.hpp
+        src/Enemy.cpp
 )
 
 # Include SFML headers

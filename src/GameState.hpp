@@ -1,6 +1,4 @@
-//
-// Created by prais on 18/11/2025.
-//
+
 
 #ifndef THE_QUEST_GAMESTATE_HPP
 #define THE_QUEST_GAMESTATE_HPP
@@ -28,12 +26,17 @@ public:
     void update(float dt) override;
     void render(sf::RenderWindow& window) override;
 
+    sf::FloatRect getBounds() const {
+        return sprite.getGlobalBounds();
+    }
+
 
 private:
     StateManager& manager;
     sf::RenderWindow window;
     InputManager input;
     Player player;
+    sf::Sprite sprite;
     TileMap map;
     sf::View view; //gameplay camera
     sf::View full = map.getFullMapView(); //full map

@@ -1,7 +1,3 @@
-//
-// Created by prais on 18/11/2025.
-//
-
 #include "GameState.hpp"
 #include "ResourceManager.hpp"
 #include <iostream>
@@ -49,7 +45,8 @@ void GameState::handleInput(sf::RenderWindow& window) {
 
 void GameState::update(float dt) {
     input.update();
-    player.update(dt, window);
+    player.update(dt);
+
 
     if (input.isKeyPressedOnce(sf::Keyboard::Escape)) {
         // open pause menu

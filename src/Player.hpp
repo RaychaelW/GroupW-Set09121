@@ -10,6 +10,7 @@
 #include <SFML/Graphics.hpp>
 #include "InputManager.hpp"
 #include "ResourceManager.hpp"
+#include "Tilemap.hpp"
 
 struct Frame {
     int x, y, width, height;
@@ -34,7 +35,7 @@ public:
     Player();
 
     void handleInput();
-    void update(float dt, const sf::RenderWindow& window);
+    void update(float dt);
     void render(sf::RenderWindow& window);
     void setCharacter(CharacterColor color);
 
@@ -50,6 +51,20 @@ public:
         sprite.setPosition(pos);
     }
 
+    sf::Vector2f& getVelocity() { return velocity; }
+
+    sf::FloatRect getBounds() const {
+        return sprite.getGlobalBounds();
+    }
+
+    void setVelocityY(float vy) {
+        velocity.y = vy;
+    }
+
+    void setIsGrounded(bool grounded) {
+        isGrounded = grounded;
+    }
+
 
 private:
     InputManager input;
@@ -58,11 +73,12 @@ private:
     sf::Vector2f position;
     bool facingRight = true;
 
+    TileMap map;
 
     //movement
     sf::Vector2f velocity;
     float speed = 200.f;
-    float jumpForce = 350.f;
+    float jumpForce = 500.f;
     float isGrounded = false;
     float gravity = 981.f;
 
@@ -74,7 +90,6 @@ private:
     size_t currentFrame = 0;
     float animationTimer = 0.f; //switching frames
     float animationSpeed = 0.2f; //secs per frame
-
 
     void updateAnimation(float dt); //animation helper
 

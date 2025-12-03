@@ -59,11 +59,17 @@ bool TileMap::load(const std::string& tmxFilePath) {
 
     // clear old
     m_drawOrder.clear();
+    m_textureCache.clear();
     platforms.clear();
     hazards.clear();
     collectables.clear();
     enemies.clear();
     levelLogic.clear();
+    platformSprites.clear();
+    hazardSprites.clear();
+    enemySprites.clear();
+    collectableSprites.clear();
+    levelLogicSprites.clear();
 
     // load layers & objects
     loadTileAndImageLayers();
@@ -85,6 +91,7 @@ const tmx::Tileset* TileMap::findTilesetForGID(uint32_t gid) const {
     }
     return nullptr;
 }
+
 std::string TileMap::resolvePath(const std::string& rel) const {
     // if relative is absolute (starts with drive or slash) just normalize and return
     if (rel.empty()) return rel;
@@ -214,7 +221,11 @@ void TileMap::loadTileAndImageLayers() {
 // Load object layers & classify them
 void TileMap::loadObjectLayers() {
 
-    for (const auto& layer : m_map.getLayers())
+    const auto& layers = m_map.getLayers();
+    const auto& tilesets = m_map.getTilesets();
+    auto tileSize = m_map.getTileSize();
+
+    for (const auto& layer : layers)
     {
         if (layer->getType() != tmx::Layer::Type::Object)
             continue;
@@ -228,20 +239,90 @@ void TileMap::loadObjectLayers() {
             auto a = obj.getAABB();
             sf::FloatRect rect(a.left, a.top, a.width, a.height);
 
-            // Push into correct list
-            if (name == "platforms")
-                platforms.push_back(rect);
-            else if (name == "hazards")
-                hazards.push_back(rect);
-            else if (name == "collectables")
-                collectables.push_back(rect);
-            else if (name == "enemies")
-                enemies.push_back(rect);
-            else if (name == "level_logic")
-                levelLogic.push_back(rect);
+            //save collision bounds
+            if (name == "platforms") platforms.push_back(rect);
+            else if (name == "hazards") hazards.push_back(rect);
+            else if (name == "collectables") collectables.push_back(rect);
+            else if (name == "enemies") enemies.push_back(rect);
+            else if (name == "level_logic") levelLogic.push_back(rect);
+
+            // If object has NO GID → skip rendering
+            if (obj.getTileID() == 0) continue;
+
+            uint32_t gid = obj.getTileID();
+            const tmx::Tileset* usedTs = findTilesetForGID(gid);
+            if (!usedTs) continue;
+
+            uint32_t localID = gid - usedTs->getFirstGID();
+
+            // prepare a TileObject
+            TileObject tobj;
+            tobj.bounds = rect;
+
+            // CASE: image-collection tileset (each tile has its own imagePath)
+            if (usedTs->getImagePath().empty()) {
+                const auto &tilesVec = usedTs->getTiles();
+                if (localID >= tilesVec.size()) continue;
+                const auto &tinfo = tilesVec[localID];
+                std::string imgRel = tinfo.imagePath;
+                if (imgRel.empty()) continue;
+                std::string imgFull = resolvePath(imgRel);
+
+                sf::Texture* tex = nullptr;
+                auto it = m_textureCache.find(imgFull);
+                if (it != m_textureCache.end()) tex = it->second;
+                else {
+                    tex = ResourceManager::getInstance().getTexture(imgFull);
+                    if (tex) m_textureCache[imgFull] = tex;
+                }
+                if (!tex) continue;
+
+                tobj.sprite.setTexture(*tex);
+                tobj.sprite.setPosition(rect.left, rect.top);
+            }
+            // CASE: tileset uses an atlas (single image)
+            else {
+                std::string atlasRel = usedTs->getImagePath();
+                std::string atlasFull = resolvePath(atlasRel);
+
+                sf::Texture* atlas = nullptr;
+                auto it = m_textureCache.find(atlasFull);
+                if (it != m_textureCache.end()) atlas = it->second;
+                else {
+                    atlas = ResourceManager::getInstance().getTexture(atlasFull);
+                    if (atlas) m_textureCache[atlasFull] = atlas;
+                }
+                if (!atlas) continue;
+
+                auto tsTileSize = usedTs->getTileSize();
+                unsigned columns = 1;
+                if (tsTileSize.x > 0) columns = atlas->getSize().x / tsTileSize.x;
+
+                unsigned tu = localID % columns;
+                unsigned tv = localID / columns;
+
+                tobj.sprite.setTexture(*atlas);
+                tobj.sprite.setTextureRect(sf::IntRect(
+                    static_cast<int>(tu * tsTileSize.x),
+                    static_cast<int>(tv * tsTileSize.y),
+                    static_cast<int>(tsTileSize.x),
+                    static_cast<int>(tsTileSize.y)
+                ));
+                // place top-left at object position (tmx object coordinates)
+                tobj.sprite.setPosition(rect.left, rect.top - (tsTileSize.y - static_cast<unsigned>(rect.height)));
+                // Note: some tiles are larger than the object bbox; this adjustment keeps them visually aligned with tile cell top.
+            }
+
+            // push to corresponding sprite list (for drawing)
+            if (name == "platforms") platformSprites.push_back(std::move(tobj));
+            else if (name == "hazards") hazardSprites.push_back(std::move(tobj));
+            else if (name == "collectables") collectableSprites.push_back(std::move(tobj));
+            else if (name == "enemies") enemySprites.push_back(std::move(tobj));
+            else if (name == "level_logic") levelLogicSprites.push_back(std::move(tobj));
         }
     }
 }
+
 
 
 sf::Vector2u TileMap::getMapPixelSize() const {
@@ -258,9 +339,16 @@ sf::View TileMap::getFullMapView() const {
 void TileMap::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 
     states.transform *= getTransform();
-
     //draw in insertion order
     for (const auto& sprite : m_drawOrder)
         target.draw(sprite, states);
+
+
+    // Draw object-layer sprites (platforms/hazards/collectables/enemies/logic)
+    for (const auto& o : platformSprites) target.draw(o.sprite, states);
+    for (const auto& o : hazardSprites) target.draw(o.sprite, states);
+    for (const auto& o : collectableSprites) target.draw(o.sprite, states);
+    for (const auto& o : enemySprites) target.draw(o.sprite, states);
+    for (const auto& o : levelLogicSprites) target.draw(o.sprite, states);
 
 }
