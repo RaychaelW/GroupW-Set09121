@@ -1,27 +1,89 @@
 #include "MainMenuState.hpp"
-#include "GameState.hpp"
+#include "KingdomSelectionState.hpp"
+#include "SettingsState.hpp"
 #include <iostream>
 
 MainMenuState::MainMenuState(StateManager& manager)
     : manager(manager)
 {
-    font.loadFromFile("resources/fonts/arial.ttf");
+    font.loadFromFile("resources/fonts/MedievalSharp-Regular.ttf");
+
+    backgroundTexture.loadFromFile("resources/textures/bg2.png");
+    backgroundSprite.setTexture(backgroundTexture);
+    backgroundSprite.setScale(1.3f, 1.3f);
+
+    // Title
     title.setFont(font);
-    title.setString("The Quest\nPress ENTER to Play");
-    title.setCharacterSize(25);
-    title.setPosition(100, 100);
+    title.setString("THE QUEST");
+    title.setCharacterSize(68);
+    title.setStyle(sf::Text::Bold);
+    title.setPosition(150, 80);
+    title.setOutlineThickness(3);
+    title.setOutlineColor(sf::Color::Black);
+
+    // Play
+    playText.setFont(font);
+    playText.setString("Play");
+    playText.setCharacterSize(40);
+    playText.setPosition(220, 250);
+    playText.setOutlineThickness(2);
+    playText.setOutlineColor(sf::Color::Black);
+
+    // Settings
+    settingsText.setFont(font);
+    settingsText.setString("Settings");
+    settingsText.setCharacterSize(40);
+    settingsText.setPosition(220, 330);
+    settingsText.setOutlineThickness(2);
+    settingsText.setOutlineColor(sf::Color::Black);
+
+    // Quit
+    quitText.setFont(font);
+    quitText.setString("Quit");
+    quitText.setCharacterSize(40);
+    quitText.setPosition(220, 410);
+    quitText.setOutlineThickness(2);
+    quitText.setOutlineColor(sf::Color::Black);
+
+    options = { &playText, &settingsText, &quitText };
+
+    updateSelection();
 }
 
 void MainMenuState::handleInput(sf::RenderWindow& window) {
     sf::Event event;
     while (window.pollEvent(event)) {
+
         if (event.type == sf::Event::Closed)
             window.close();
 
-        if (event.type == sf::Event::KeyPressed &&
-            event.key.code == sf::Keyboard::Enter)
-        {
-            manager.push(std::make_unique<GameState>(manager));
+        if (event.type == sf::Event::KeyPressed) {
+
+            // ESC does nothing here
+            if (event.key.code == sf::Keyboard::Escape) {}
+
+            if (event.key.code == sf::Keyboard::Up) {
+                selectedIndex = (selectedIndex - 1 + options.size()) % options.size();
+                updateSelection();
+            }
+
+            if (event.key.code == sf::Keyboard::Down) {
+                selectedIndex = (selectedIndex + 1) % options.size();
+                updateSelection();
+            }
+
+            if (event.key.code == sf::Keyboard::Enter) {
+
+                if (selectedIndex == 0) {
+                    manager.push(std::make_unique<KingdomSelectionState>(manager));
+                }
+                else if (selectedIndex == 1) {
+                    manager.push(std::make_unique<SettingsState>(manager));
+                }
+                else if (selectedIndex == 2) {
+                    window.close();
+                }
+            }
         }
     }
 }
@@ -29,5 +91,16 @@ void MainMenuState::handleInput(sf::RenderWindow& window) {
 void MainMenuState::update(float dt) {}
 
 void MainMenuState::render(sf::RenderWindow& window) {
+    window.draw(backgroundSprite);
     window.draw(title);
+    window.draw(playText);
+    window.draw(settingsText);
+    window.draw(quitText);
+}
+
+void MainMenuState::updateSelection() {
+    for (auto* t : options)
+        t->setFillColor(sf::Color::White);
+
+    options[selectedIndex]->setFillColor(sf::Color::Yellow);
 }

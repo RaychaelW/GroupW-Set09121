@@ -1,8 +1,6 @@
-//
-// Created by prais on 18/11/2025.
-//
-
 #include "StateManager.hpp"
+#include "State.hpp"
+#include <SFML/Graphics.hpp>
 
 void StateManager::push(std::unique_ptr<State> state) {
     states.push(std::move(state));
@@ -18,4 +16,20 @@ State* StateManager::getCurrent() {
     return states.top().get();
 }
 
+void StateManager::handleInput(sf::RenderWindow& window) {
+    if (!states.empty()) {
+        states.top()->handleInput(window);
+    }
+}
 
+void StateManager::update(float dt) {
+    if (!states.empty()) {
+        states.top()->update(dt);
+    }
+}
+
+void StateManager::render(sf::RenderWindow& window) {
+    if (!states.empty()) {
+        states.top()->render(window);
+    }
+}
