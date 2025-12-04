@@ -9,6 +9,7 @@
 #pragma once
 #include "State.hpp"
 #include "StateManager.hpp"
+#include "GameOverState.hpp"
 
 class MainMenuState : public State {
 public:

@@ -316,7 +316,6 @@ void TileMap::loadObjectLayers() {
             // push to corresponding sprite list (for drawing)
             if (name == "platforms") platformSprites.push_back(std::move(tobj));
             else if (name == "hazards") hazardSprites.push_back(std::move(tobj));
-            else if (name == "collectables") collectableSprites.push_back(std::move(tobj));
             else if (name == "enemies") enemySprites.push_back(std::move(tobj));
             else if (name == "level_logic") levelLogicSprites.push_back(std::move(tobj));
         }
@@ -344,10 +343,9 @@ void TileMap::draw(sf::RenderTarget& target, sf::RenderStates states) const {
         target.draw(sprite, states);
 
 
-    // Draw object-layer sprites (platforms/hazards/collectables/enemies/logic)
+    // Draw object-layer sprites (platforms/hazards/enemies/logic)
     for (const auto& o : platformSprites) target.draw(o.sprite, states);
     for (const auto& o : hazardSprites) target.draw(o.sprite, states);
-    for (const auto& o : collectableSprites) target.draw(o.sprite, states);
     for (const auto& o : enemySprites) target.draw(o.sprite, states);
     for (const auto& o : levelLogicSprites) target.draw(o.sprite, states);
 

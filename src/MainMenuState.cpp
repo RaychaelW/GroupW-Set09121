@@ -3,8 +3,7 @@
 #include <iostream>
 
 MainMenuState::MainMenuState(StateManager& manager)
-    : manager(manager)
-{
+    : manager(manager){
     font.loadFromFile("resources/fonts/arial.ttf");
     title.setFont(font);
     title.setString("The Quest\nPress ENTER to Play");

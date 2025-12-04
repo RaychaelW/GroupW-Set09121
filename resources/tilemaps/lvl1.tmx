@@ -55,6 +55,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
+
  <objectgroup id="9" name="platforms" locked="1">
   <object id="11" gid="398" x="0" y="634" width="64" height="64"/>
   <object id="12" gid="398" x="64" y="634" width="64" height="64"/>
@@ -77,19 +78,25 @@
   <object id="29" gid="398" x="1152.33" y="634" width="64" height="64"/>
   <object id="30" gid="398" x="1216" y="634" width="64" height="64"/>
  </objectgroup>
- <objectgroup id="3" name="hazards" locked="1">
-  <object id="1" gid="246" x="288.5" y="570" width="64" height="64"/>
+
+ <objectgroup id="3" name="hazards">
+  <object id="1" gid="246" x="322.5" y="570" width="32" height="32"/>
  </objectgroup>
+
  <objectgroup id="4" name="enemies" locked="1">
   <object id="2" gid="104" x="895.833" y="570" width="64" height="64"/>
  </objectgroup>
+
  <objectgroup id="5" name="collectables" locked="1">
   <object id="4" gid="156" x="575" y="570" width="64" height="64"/>
   <object id="5" gid="156" x="617" y="570" width="64" height="64"/>
   <object id="8" gid="156" x="660" y="570" width="64" height="64"/>
   <object id="9" gid="156" x="704" y="570" width="64" height="64"/>
  </objectgroup>
+
  <objectgroup id="6" name="level_logic" locked="1">
-  <object id="10" gid="164" x="1184" y="570" width="64" height="64"/>
+  <object id="10" gid="164" x="1229" y="506" width="300" height="128"/>
+  <object id="11" gid="163" x="1229" y="570" width="300" height="128"/>
+
  </objectgroup>
 </map>

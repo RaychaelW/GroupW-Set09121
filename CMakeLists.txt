@@ -44,6 +44,8 @@ add_executable(the_quest
         src/Hazard.hpp
         src/Enemy.hpp
         src/Enemy.cpp
+        src/GameOverState.cpp
+        src/GameOverState.hpp
 )
 
 # Include SFML headers

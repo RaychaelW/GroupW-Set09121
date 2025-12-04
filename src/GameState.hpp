@@ -12,10 +12,9 @@
 #include <SFML/Graphics.hpp>
 #include <algorithm>
 #include <iostream>
-
-
-#include "TileMap.hpp"
+#include "Tilemap.hpp"
 #include "tmxlite/Map.hpp"
+#include "GameOverState.hpp"
 
 
 class GameState : public State {
@@ -40,6 +39,7 @@ private:
     TileMap map;
     sf::View view; //gameplay camera
     sf::View full = map.getFullMapView(); //full map
+    sf::Texture coinTexture;
 
 
 };

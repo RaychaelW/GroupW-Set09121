@@ -19,7 +19,8 @@ struct Frame {
 enum class MoveType {
     Idle,
     Walk,
-    Jump
+    Jump,
+    Hit
 };
 
 enum class CharacterColor {
@@ -39,31 +40,28 @@ public:
     void render(sf::RenderWindow& window);
     void setCharacter(CharacterColor color);
 
-    sf::Sprite& getSprite() {
-        return sprite;
-    }
+    sf::Sprite& getSprite() {return sprite;}
 
-    sf::Vector2f getPosition() const {
-        return sprite.getPosition();
-    }
-
-    void setPosition(const sf::Vector2f& pos) {
-        sprite.setPosition(pos);
-    }
+    sf::Vector2f getPosition() const {return sprite.getPosition();}
+    void setPosition(const sf::Vector2f& pos) {sprite.setPosition(pos);}
 
     sf::Vector2f& getVelocity() { return velocity; }
+    sf::FloatRect getBounds() const {return sprite.getGlobalBounds();}
+    void setVelocityY(float vy) {velocity.y = vy;}
+    void setIsGrounded(bool grounded) {isGrounded = grounded;}
 
-    sf::FloatRect getBounds() const {
-        return sprite.getGlobalBounds();
-    }
+    //player stats
+    int getLives() const {return lives;}
+    void damage();
+    void loseLife();
+    int addCoin();
+    int getCoins() const{ return coins;}
+    bool dead() const { return isDead;}
 
-    void setVelocityY(float vy) {
-        velocity.y = vy;
-    }
-
-    void setIsGrounded(bool grounded) {
-        isGrounded = grounded;
-    }
+    //platform logic
+    float verticalVelocity() const { return velocity.y;}
+    void setOnGround(bool grounded) { isGrounded = grounded;}
+    void stopVertical() { velocity.y = 0.f;}
 
 
 private:
@@ -78,7 +76,7 @@ private:
     //movement
     sf::Vector2f velocity;
     float speed = 200.f;
-    float jumpForce = 500.f;
+    float jumpForce = 600.f;
     float isGrounded = false;
     float gravity = 981.f;
 
@@ -93,6 +91,12 @@ private:
 
     void updateAnimation(float dt); //animation helper
 
+    //health and coins
+    int lives = 3;
+    bool isInvincible = false;
+    float invincibleTimer = 0.f;
+    bool isDead = false;
+    int coins = 0;
 };
 
 
