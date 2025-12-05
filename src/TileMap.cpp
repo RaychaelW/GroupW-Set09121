@@ -1,5 +1,6 @@
 #include "TileMap.hpp"
 #include "ResourceManager.hpp"
+#include "Enemy.hpp"
 #include <iostream>
 #include <algorithm>
 #include <sstream>
@@ -65,6 +66,7 @@ bool TileMap::load(const std::string& tmxFilePath) {
     collectables.clear();
     enemies.clear();
     levelLogic.clear();
+
     platformSprites.clear();
     hazardSprites.clear();
     enemySprites.clear();
@@ -74,7 +76,6 @@ bool TileMap::load(const std::string& tmxFilePath) {
     // load layers & objects
     loadTileAndImageLayers();
     loadObjectLayers();
-
     return true;
 }
 
@@ -316,12 +317,10 @@ void TileMap::loadObjectLayers() {
             // push to corresponding sprite list (for drawing)
             if (name == "platforms") platformSprites.push_back(std::move(tobj));
             else if (name == "hazards") hazardSprites.push_back(std::move(tobj));
-            else if (name == "enemies") enemySprites.push_back(std::move(tobj));
             else if (name == "level_logic") levelLogicSprites.push_back(std::move(tobj));
         }
     }
 }
-
 
 
 sf::Vector2u TileMap::getMapPixelSize() const {
@@ -346,7 +345,6 @@ void TileMap::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     // Draw object-layer sprites (platforms/hazards/enemies/logic)
     for (const auto& o : platformSprites) target.draw(o.sprite, states);
     for (const auto& o : hazardSprites) target.draw(o.sprite, states);
-    for (const auto& o : enemySprites) target.draw(o.sprite, states);
     for (const auto& o : levelLogicSprites) target.draw(o.sprite, states);
 
 }

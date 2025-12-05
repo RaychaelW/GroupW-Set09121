@@ -7,6 +7,8 @@
 #include "ResourceManager.hpp"
 #include <iostream>
 #include <tmxlite/Map.hpp>
+
+#include "Projectile.hpp"
 #include "Tilemap.hpp"
 
 
@@ -104,7 +106,6 @@ void Player::update(float dt) {
 
     //apply gravity
     velocity.y += gravity * dt;
-
     sprite.move(velocity * dt);
 
     const sf::FloatRect bounds = sprite.getGlobalBounds(); //get player bounds
@@ -122,6 +123,16 @@ void Player::update(float dt) {
     }
     */
 
+    if (isHit) {
+        hitTimer -= dt;
+        velocity = knockBackVelocity;
+
+        if (hitTimer <= 0) {
+            isHit = false;
+            currentMove = MoveType::Idle;
+        }
+    }
+
     updateAnimation(dt); //animate
 
 }
@@ -135,19 +146,26 @@ int Player::addCoin() {
 
 
 void Player::damage() {
-    sf::IntRect hitFrame = sf::IntRect(653, 29, 100, 100);
+    sf::IntRect hitFrame = sf::IntRect(653, 16, 100, 100);
 
     if (isInvincible || isDead) return;
 
+    if (isHit) return;
     lives -= 1;
+    isHit = true;
+    hitTimer = hitDuration;
+    //bounce back after hit
+    knockBackVelocity = sf::Vector2f( facingRight ? -150.f : 150.f, -120.f);
+    sprite.setTextureRect(hitFrame);
+
+
     if (lives < 0) lives = 0;
     std::cout << "Player hit! Lives left: " << lives << "\n";
+
 
     if (lives == 0) {
         isDead = true;
         std::cout << "Player is dead.\n";
-        currentMove = MoveType::Hit;
-        sprite.setTextureRect(hitFrame);
         return;
     }
 
@@ -160,6 +178,15 @@ void Player::damage() {
     }
 
 }
+
+void Player::reset() {
+    lives = 3;
+    coins = 0;
+    velocity = {0,0};
+
+    setPosition({100.f, 100.f});
+}
+
 
 void Player::loseLife() {
     if (lives > 0)

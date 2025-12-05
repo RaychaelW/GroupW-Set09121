@@ -30,6 +30,8 @@ public:
     }
 
 
+
+
 private:
     StateManager& manager;
     sf::RenderWindow window;
@@ -39,9 +41,10 @@ private:
     TileMap map;
     sf::View view; //gameplay camera
     sf::View full = map.getFullMapView(); //full map
-    sf::Texture coinTexture;
-
-
+    sf::Texture *coinTexture;
+    std::vector<Projectile> projectiles;
+    sf::Texture* projectileTexture = nullptr;
+    std::vector<Enemy> enemies;
 };
 
 

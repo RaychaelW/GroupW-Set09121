@@ -16,7 +16,9 @@ public:
     static ResourceManager& getInstance();
 
     sf::Texture* getTexture(const std::string& filename);
-    void clear(); // optional
+    sf::Font* getFont(const std::string& filename);
+
+    void clear();
 
 
 private:
@@ -25,6 +27,7 @@ private:
     ResourceManager& operator=(const ResourceManager&) = delete;
 
     std::unordered_map<std::string, sf::Texture> m_textures;
+    std::unordered_map<std::string, sf::Font> m_fonts;
 };
 
 

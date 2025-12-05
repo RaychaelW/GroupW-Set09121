@@ -12,7 +12,7 @@ MainMenuState::MainMenuState(StateManager& manager)
 }
 
 void MainMenuState::handleInput(sf::RenderWindow& window) {
-    sf::Event event;
+    sf::Event event{};
     while (window.pollEvent(event)) {
         if (event.type == sf::Event::Closed)
             window.close();

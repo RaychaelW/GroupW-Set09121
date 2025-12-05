@@ -10,6 +10,7 @@
 #include "ResourceManager.hpp"
 #include <vector>
 #include <string>
+#include <map>
 #include <unordered_map>
 
 struct ObjectData {
@@ -36,7 +37,6 @@ public:
     sf::Vector2u getMapPixelSize() const;
     // view that shows the whole map
     sf::View getFullMapView() const;
-    //void loadPlatforms();
 
     //object groups for gameplay/collisions
     std::vector<sf::FloatRect> platforms;
@@ -58,6 +58,9 @@ public:
     std::vector<TileObject> collectableSprites;
     std::vector<TileObject> levelLogicSprites;
 
+    sf::Vector2f getPlayerSpawn() const {
+        return getPosition();
+    }
 
 private:
     tmx::Map m_map; //tmxlite map object

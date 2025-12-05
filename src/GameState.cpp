@@ -1,17 +1,33 @@
 #include "GameState.hpp"
 #include "ResourceManager.hpp"
 #include <iostream>
+#include "Enemy.hpp"
+#include "Projectile.hpp"
 #include "GameOverState.hpp"
 
 
 GameState::GameState(StateManager& manager)
     : manager(manager) {
+
     if (!map.load("resources/tilemaps/lvl1.tmx")) {
         std::cerr << " ERROR: Failed to load tilemap in Gamestate\n";
     }
 
-    coinTexture.loadFromFile("resources/tilesets/Sprites/Tiles/Default/coin_gold.png");
-    coinTexture.setSmooth(false);
+    projectileTexture = ResourceManager::getInstance().getTexture("resources/tilesets/Sprites/Tiles/surge.png");
+    if (!projectileTexture) {
+        std::cerr << "Failed to load projectile texture\n";
+    }
+
+    for (auto& r : map.getEnemies()) {
+        enemies.emplace_back(EnemyType::Static,
+                             ResourceManager::getInstance().getTexture("resources/tilesets/Sprites/Enemies/Default/slime_normal_walk_a.png"),
+                             r.left,
+                             r.top);
+    }
+
+
+    coinTexture = ResourceManager::getInstance().getTexture("resources/tilesets/Sprites/Tiles/Default/coin_gold.png");
+    coinTexture->setSmooth(false);
 
     //full map view
     full = map.getFullMapView();
@@ -25,13 +41,25 @@ void GameState::handleInput(sf::RenderWindow& window) {
     while (window.pollEvent(event)) {
 
         input.update(); //use Input manager
-        player.handleInput(); // let the player read input(WASD)
+        player.handleInput(); // let the player read input
 
         if (event.type == sf::Event::KeyPressed) {
             if (event.key.code == sf::Keyboard::Tab) {
                 static bool usingFull = false;
                 usingFull = !usingFull;
                 window.setView(usingFull ? full : view);
+            }
+        }
+        if (event.type == sf::Event::KeyPressed) {
+            if (event.key.code == sf::Keyboard::E) {
+                float dir = player.isFacingRight() ? 1.f : -1.f;
+                sf::Vector2f pos = player.getSprite().getPosition();
+
+                // spawn slightly in front of player (tweak offsets)
+                float spawnX = pos.x + (dir * 30.f);
+                float spawnY = pos.y + player.getSprite().getGlobalBounds().height * 0.65f;
+
+                projectiles.emplace_back(spawnX, spawnY, dir, projectileTexture);
             }
         }
 
@@ -74,11 +102,47 @@ void GameState::update(float dt) {
     }
 
     //enemy collision
-    for (const sf::FloatRect& e : map.getEnemies()) {
-        if (playerBounds.intersects(e)) {
-            player.damage(); //lose a life and hit animation
+    for (auto& e : enemies) {
+        if (!e.alive) continue;
+
+        if (playerBounds.intersects(e.getBounds())) {
+            std::cout << "Player hit by enemy!\n";
+            player.damage();
+            // player bounces back
+            sf::Vector2f knockback = player.isFacingRight() ? sf::Vector2f(-30.f, -20.f) : sf::Vector2f(30.f, -20.f);
+            player.getSprite().move(knockback);
             break;
         }
+    }
+
+    // projectile and enemy collision
+    for (auto p = projectiles.begin(); p != projectiles.end();) {
+        p->update(dt);
+
+        bool projectileRemoved = false;  // mark if we erased projectile
+
+        for (auto e = enemies.begin(); e != enemies.end();) {
+            if (p->getBounds().intersects(e->getBounds())) {
+                std::cout << "Enemy has been defeated!\n";
+
+                // Remove enemy
+                e = enemies.erase(e);
+
+                // Remove projectile
+                p = projectiles.erase(p);
+                projectileRemoved = true;
+
+                break;  // break out of enemy loop — projectile is gone
+            } else {
+                ++e;
+            }
+        }
+
+        if (projectileRemoved) {
+            // we already erased projectile — don't increment p
+            continue;
+        }
+        ++p;
     }
 
 
@@ -89,6 +153,14 @@ void GameState::update(float dt) {
             //push rewards page (not implemented yet)
             break;
         }
+    }
+
+
+    //switch to gameoverstate if player dies
+    if (player.dead()) {
+        //manager.pop();
+        manager.push(std::make_unique<GameOverState>(manager, window));
+        return;
     }
 
     //platform collision
@@ -134,10 +206,17 @@ void GameState::render(sf::RenderWindow& window) {
 
     for (const auto& c : map.getCollectables()) {
         sf::Sprite coin;
-        coin.setTexture(coinTexture);
+        coin.setTexture(*coinTexture);
         coin.setPosition(c.left, c.top);
         window.draw(coin);
     }
+
+    for (auto& p : projectiles)
+        p.render(window);
+
+
+    for (auto& e : enemies)
+        e.render(window);
 
     //enemies.draw(window);
 

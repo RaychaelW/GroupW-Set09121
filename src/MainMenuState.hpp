@@ -13,7 +13,7 @@
 
 class MainMenuState : public State {
 public:
-    MainMenuState(StateManager& manager);
+    explicit MainMenuState(StateManager& manager);
     void handleInput(sf::RenderWindow& window) override;
     void update(float dt) override;
     void render(sf::RenderWindow& window) override;
@@ -23,7 +23,5 @@ private:
     sf::Font font;
     sf::Text title;
 };
-
-
 
 #endif //THE_QUEST_MAINMENUSTATE_H

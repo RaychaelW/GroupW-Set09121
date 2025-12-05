@@ -40,12 +40,14 @@ add_executable(the_quest
         src/Tilemap.hpp
         src/ResourceManager.hpp
         src/ResourceManager.cpp
-        src/Hazard.cpp
-        src/Hazard.hpp
         src/Enemy.hpp
         src/Enemy.cpp
         src/GameOverState.cpp
         src/GameOverState.hpp
+        src/Projectile.cpp
+        src/Projectile.hpp
+        src/KingdomState.cpp
+        src/KingdomState.hpp
 )
 
 # Include SFML headers

@@ -9,8 +9,10 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "InputManager.hpp"
+#include "Projectile.hpp"
 #include "ResourceManager.hpp"
 #include "Tilemap.hpp"
+#include <vector>
 
 struct Frame {
     int x, y, width, height;
@@ -39,9 +41,12 @@ public:
     void update(float dt);
     void render(sf::RenderWindow& window);
     void setCharacter(CharacterColor color);
+    void reset();
+
+
+    Projectile createAttackProjectile(const sf::Texture* projTexture) const;
 
     sf::Sprite& getSprite() {return sprite;}
-
     sf::Vector2f getPosition() const {return sprite.getPosition();}
     void setPosition(const sf::Vector2f& pos) {sprite.setPosition(pos);}
 
@@ -56,12 +61,14 @@ public:
     void loseLife();
     int addCoin();
     int getCoins() const{ return coins;}
-    bool dead() const { return isDead;}
+    bool dead() const { return lives <= 0;}
 
     //platform logic
     float verticalVelocity() const { return velocity.y;}
     void setOnGround(bool grounded) { isGrounded = grounded;}
     void stopVertical() { velocity.y = 0.f;}
+
+    bool isFacingRight() {return facingRight;}
 
 
 private:
@@ -95,8 +102,18 @@ private:
     int lives = 3;
     bool isInvincible = false;
     float invincibleTimer = 0.f;
+    float invincibleDuration = 1.0f;
     bool isDead = false;
     int coins = 0;
+
+    bool isHit = false;
+    float hitTimer = 0.f;
+    float hitDuration = 0.4f;
+    sf::Vector2f knockBackVelocity;
+
+    std::vector<Projectile> projectiles;
+    void attack(std::vector<Projectile>& shots);
+
 };
 
 
