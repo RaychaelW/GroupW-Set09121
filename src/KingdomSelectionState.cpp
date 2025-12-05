@@ -10,7 +10,7 @@ KingdomSelectionState::KingdomSelectionState(StateManager& manager)
     font.loadFromFile("resources/fonts/MedievalSharp-Regular.ttf");
 
     // Load background
-    backgroundTexture.loadFromFile("resources/textures/MainMenuBackground.png");
+    backgroundTexture.loadFromFile("resources/textures/KingdomB.png");
     backgroundSprite.setTexture(backgroundTexture);
     backgroundSprite.setScale(1.3f, 1.3f);
 

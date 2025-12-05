@@ -33,9 +33,9 @@ Kingdom1LevelState::Kingdom1LevelState(StateManager& manager)
                 b += 80;
             }
 
-            r = std::clamp(r, 10, 80);
-            g = std::clamp(g, 5, 40);
-            b = std::clamp(b, 20, 100);
+            r = std::max(10, std::min(r, 80));
+            g = std::max(5, std::min(g, 40));
+            b = std::max(20, std::min(b, 100));
 
             backgroundImage.setPixel(x, y, sf::Color(r, g, b));
         }

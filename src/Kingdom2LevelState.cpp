@@ -37,9 +37,14 @@ Kingdom2LevelState::Kingdom2LevelState(StateManager& manager)
 
             // Add foliage patterns
             float leafPattern = sin(x * 0.02f) * cos(y * 0.03f) * 0.4f;
-            r = std::clamp(r + static_cast<int>(leafPattern * 20), 20, 180);
-            g = std::clamp(g + static_cast<int>(leafPattern * 30), 50, 200);
-            b = std::clamp(b + static_cast<int>(leafPattern * 15), 20, 120);
+            int tempR = r + static_cast<int>(leafPattern * 20);
+            r = std::max(20, std::min(tempR, 180));
+
+            int tempG = g + static_cast<int>(leafPattern * 30);
+            g = std::max(50, std::min(tempG, 200));
+
+            int tempB = b + static_cast<int>(leafPattern * 15);
+            b = std::max(20, std::min(tempB, 120));
 
             // Add "light rays" effect
             float lightRay = sin((x + y * 0.5f) * 0.01f);
