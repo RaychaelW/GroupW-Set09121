@@ -46,8 +46,6 @@ add_executable(the_quest
         src/GameOverState.hpp
         src/Projectile.cpp
         src/Projectile.hpp
-        src/KingdomState.cpp
-        src/KingdomState.hpp
 )
 
 # Include SFML headers
