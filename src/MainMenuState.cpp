@@ -3,8 +3,7 @@
 #include <iostream>
 
 MainMenuState::MainMenuState(StateManager& manager)
-    : manager(manager)
-{
+    : manager(manager){
     font.loadFromFile("resources/fonts/arial.ttf");
     title.setFont(font);
     title.setString("The Quest\nPress ENTER to Play");
@@ -13,7 +12,7 @@ MainMenuState::MainMenuState(StateManager& manager)
 }
 
 void MainMenuState::handleInput(sf::RenderWindow& window) {
-    sf::Event event;
+    sf::Event event{};
     while (window.pollEvent(event)) {
         if (event.type == sf::Event::Closed)
             window.close();

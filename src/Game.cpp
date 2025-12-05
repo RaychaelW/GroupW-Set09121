@@ -2,7 +2,8 @@
 #include "MainMenuState.hpp"
 
 
-Game::Game() : window(sf::VideoMode(800, 600), "The Quest") {
+Game::Game() : window(sf::VideoMode(1280, 720), "The Quest")
+{
     stateManager.push(std::make_unique<MainMenuState>(stateManager));
 }
 

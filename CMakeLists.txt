@@ -2,7 +2,7 @@ project(the_quest)
 cmake_minimum_required(VERSION 3.11)
 
 # Require modern C++
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #### Setup Directories ####
@@ -16,7 +16,10 @@ add_subdirectory("lib/SFML")
 set(SFML_INCS "lib/SFML/include")
 link_directories("${CMAKE_BINARY_DIR}/lib/SFML/lib")
 
-file(COPY resources/textures DESTINATION ${CMAKE_BINARY_DIR})
+add_subdirectory(lib/tmxlite/tmxlite)
+set(SFML_INCS "lib/tmxlite/tmxlite/include")
+
+file(COPY resources DESTINATION ${CMAKE_BINARY_DIR})
 
 #### Game Project ####
 add_executable(the_quest
@@ -33,6 +36,18 @@ add_executable(the_quest
         src/InputManager.hpp
         src/Player.cpp
         src/Player.hpp
+        src/Tilemap.cpp
+        src/Tilemap.hpp
+        src/ResourceManager.hpp
+        src/ResourceManager.cpp
+        src/Enemy.hpp
+        src/Enemy.cpp
+        src/GameOverState.cpp
+        src/GameOverState.hpp
+        src/Projectile.cpp
+        src/Projectile.hpp
+        src/KingdomState.cpp
+        src/KingdomState.hpp
 )
 
 # Include SFML headers
@@ -43,4 +58,5 @@ target_link_libraries(the_quest
     sfml-graphics
     sfml-window
     sfml-system
+    tmxlite
 )
