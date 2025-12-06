@@ -46,6 +46,7 @@ add_executable(the_quest
         src/GameOverState.hpp
         src/Projectile.cpp
         src/Projectile.hpp
+        src/GameState.hpp
 )
 
 # Include SFML headers
