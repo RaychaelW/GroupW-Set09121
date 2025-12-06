@@ -4,6 +4,7 @@
 #include "Enemy.hpp"
 #include "Projectile.hpp"
 #include "GameOverState.hpp"
+#include "Kingdom1LevelState.hpp"
 #include "KingdomSelectionState.hpp"
 
 
@@ -183,6 +184,15 @@ void GameState::update(float dt) {
     for (const sf::FloatRect& door : map.getLevelLogic()) {
         if (playerBounds.intersects(door)) {
             std::cout << "Level Complete!\n";
+            if (!pendingStateChange) {
+                pendingStateChange = true;
+                stateDelayClock.restart();
+            }
+            if (pendingStateChange && stateDelayClock.getElapsedTime().asSeconds() >= 0.5f) {
+                manager.push(std::make_unique<Kingdom1LevelState>(manager));
+                pendingStateChange = false;
+
+            }
             break;
         }
     }

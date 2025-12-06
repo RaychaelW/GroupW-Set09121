@@ -45,6 +45,8 @@ private:
     std::vector<Projectile> projectiles;
     sf::Texture* projectileTexture = nullptr;
     std::vector<Enemy> enemies;
+    sf::Clock stateDelayClock;
+    bool pendingStateChange;
 
     //HUD
     sf::Sprite heartSprite;
