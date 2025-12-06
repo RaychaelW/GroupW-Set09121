@@ -4,6 +4,7 @@
 #include "Enemy.hpp"
 #include "Projectile.hpp"
 #include "GameOverState.hpp"
+#include "KingdomSelectionState.hpp"
 
 
 GameState::GameState(StateManager& manager)
@@ -99,7 +100,7 @@ void GameState::handleInput(sf::RenderWindow& window) {
 
         if (event.type == sf::Event::KeyPressed &&
             event.key.code == sf::Keyboard::Escape) {
-            manager.pop();   // Return to previous state (menu)
+            manager.push(std::make_unique<KingdomSelectionState>(manager));   // Return to kingdom selection
         }
     }
 }
