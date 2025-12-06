@@ -16,10 +16,23 @@ add_subdirectory("lib/SFML")
 set(SFML_INCS "lib/SFML/include")
 link_directories("${CMAKE_BINARY_DIR}/lib/SFML/lib")
 
+file(COPY resources/textures DESTINATION ${CMAKE_BINARY_DIR})
+
 #### Game Project ####
 add_executable(the_quest
         src/main.cpp
         src/game.cpp
+        src/state.hpp
+        src/stateManager.hpp
+        src/stateManager.cpp
+        src/mainMenuState.cpp
+        src/mainMenuState.hpp
+        src/gameState.cpp
+        src/gameState.hpp
+        src/InputManager.cpp
+        src/InputManager.hpp
+        src/Player.cpp
+        src/Player.hpp
 )
 
 # Include SFML headers
