@@ -1,16 +1,10 @@
-//
-// Created by prais on 21/11/2025.
-//
-
 #include "Player.hpp"
 #include <SFML/Graphics.hpp>
 #include "ResourceManager.hpp"
 #include <iostream>
 #include <tmxlite/Map.hpp>
-
 #include "Projectile.hpp"
 #include "Tilemap.hpp"
-
 
 Player::Player() {
     texture = ResourceManager::getInstance().getTexture("resources/tilesets/Sprites/Spritesheets/spritesheet-characters-default.png");
@@ -59,7 +53,6 @@ void Player::updateAnimation(float dt) {
     }
 }
 
-
 void Player::handleInput() {
     // horizontal movement
     velocity.x = 0.f;
@@ -69,7 +62,6 @@ void Player::handleInput() {
         currentMove = MoveType::Walk;
         facingRight = false;
     }
-
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
         velocity.x += speed;
         currentMove = MoveType::Walk;
@@ -79,13 +71,19 @@ void Player::handleInput() {
         currentMove = MoveType::Idle;
     }
 
-    //jump
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+    //jump - MODIFIED: Added jump sound
+    static bool wasJumping = false;
+    bool isJumpPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Space);
+    
+    if (isJumpPressed && isGrounded && !wasJumping) {
         velocity.y = -jumpForce;
         isGrounded = false;
         currentMove = MoveType::Jump;
-        return;
-
+        // ADDED: Jump sound
+        ResourceManager::getInstance().playSound("resources/sounds/Jump.wav", 80.0f);
+        wasJumping = true;
+    } else if (!isJumpPressed) {
+        wasJumping = false;
     }
 
     if (!isGrounded) {
@@ -93,9 +91,7 @@ void Player::handleInput() {
     }
 }
 
-
 void Player::update(float dt) {
-
     //update invincibility
     if (isInvincible) {
         invincibleTimer -= dt;
@@ -134,16 +130,17 @@ void Player::update(float dt) {
     }
 
     updateAnimation(dt); //animate
-
 }
 
 int Player::addCoin() {
     coins++;
-
+    
+    // ADDED: Coin collection sound
+    ResourceManager::getInstance().playSound("resources/sounds/Coin.wav", 70.0f);
+    
     std::cout << "Coins: " << coins << "\n";
     return coins;
 }
-
 
 void Player::damage() {
     sf::IntRect hitFrame = sf::IntRect(653, 16, 100, 100);
@@ -158,14 +155,17 @@ void Player::damage() {
     knockBackVelocity = sf::Vector2f( facingRight ? -150.f : 150.f, -120.f);
     sprite.setTextureRect(hitFrame);
 
-
     if (lives < 0) lives = 0;
     std::cout << "Player hit! Lives left: " << lives << "\n";
 
+    // ADDED: Damage/hit sound
+    ResourceManager::getInstance().playSound("resources/sounds/Jump.wav", 90.0f);
 
     if (lives == 0) {
         isDead = true;
         std::cout << "Player is dead.\n";
+        // ADDED: Death sound
+        ResourceManager::getInstance().playSound("resources/sounds/Jump.wav", 100.0f);
         return;
     }
 
@@ -176,7 +176,6 @@ void Player::damage() {
         isInvincible = true;
         invincibleTimer = 0.75f; //second of immunity
     }
-
 }
 
 void Player::reset() {
@@ -187,7 +186,6 @@ void Player::reset() {
     setPosition({100.f, 100.f});
 }
 
-
 void Player::loseLife() {
     if (lives > 0)
         lives--;
@@ -195,7 +193,6 @@ void Player::loseLife() {
     if (lives == 0)
         isDead = true;
 }
-
 
 void Player::render(sf::RenderWindow& window) {
     window.draw(sprite);

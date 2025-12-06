@@ -32,6 +32,7 @@ private:
     sf::Text playText;
     sf::Text settingsText;
     sf::Text quitText;
+    sf::Text howToPlayText;
 
     std::vector<sf::Text*> options;
     int selectedIndex = 0;

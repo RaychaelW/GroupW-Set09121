@@ -2,8 +2,8 @@
 #include <iostream>
 #include <algorithm>
 #include <cmath>
-
 #include "KingdomSelectionState.hpp"
+#include "ResourceManager.hpp"  // ADDED: For sound
 
 Kingdom1LevelState::Kingdom1LevelState(StateManager& manager)
     : manager(manager)
@@ -78,6 +78,9 @@ Kingdom1LevelState::Kingdom1LevelState(StateManager& manager)
     hintText.setCharacterSize(15);
     hintText.setPosition(200, 560);
     hintText.setFillColor(sf::Color(180, 160, 220, 180));
+
+    // ADDED: Play kingdom-specific background music
+    ResourceManager::getInstance().playMusic("resources/sounds/GameBg.wav", true, 35.0f);
 }
 
 void Kingdom1LevelState::handleInput(sf::RenderWindow& window)
@@ -89,6 +92,8 @@ void Kingdom1LevelState::handleInput(sf::RenderWindow& window)
 
         if (event.type == sf::Event::KeyPressed) {
             if (event.key.code == sf::Keyboard::Escape) {
+                // ADDED: Sound for returning to kingdom selection
+                ResourceManager::getInstance().playSound("resources/sounds/Coin.wav", 50.0f);
                 manager.push(std::make_unique<KingdomSelectionState>(manager));
             }
         }
@@ -98,6 +103,19 @@ void Kingdom1LevelState::handleInput(sf::RenderWindow& window)
 void Kingdom1LevelState::update(float dt)
 {
     // Update level logic here
+    // Note: In your actual gameplay, you might want to add:
+    // - Level completion sound when reaching the end
+    // - Enemy sounds
+    // - Special power-up sounds
+
+    // Example for level completion (you'll need to implement the actual logic):
+    /*
+    if (levelCompleted) {
+        ResourceManager::getInstance().playSound("resources/sounds/KingdomCompleted.wav", 100.0f);
+        // Stop background music and play victory music
+        ResourceManager::getInstance().stopMusic();
+    }
+    */
 }
 
 void Kingdom1LevelState::render(sf::RenderWindow& window)

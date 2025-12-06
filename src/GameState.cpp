@@ -6,7 +6,6 @@
 #include "GameOverState.hpp"
 #include "KingdomSelectionState.hpp"
 
-
 GameState::GameState(StateManager& manager)
     : manager(manager) {
 
@@ -54,23 +53,59 @@ GameState::GameState(StateManager& manager)
 
     //full map view
     full = map.getFullMapView();
+
+    // Initialize pause system
+    isPaused = false;
+
+
+    // Pause text
+    pauseText.setFont(font);
+    pauseText.setString("PAUSED");
+    pauseText.setCharacterSize(60);
+    pauseText.setFillColor(sf::Color::White);
+    pauseText.setOutlineColor(sf::Color::Black);
+    pauseText.setOutlineThickness(3);
+    pauseText.setPosition(400.f, 200.f);
+
+    // Pause overlay
+    pauseOverlay.setSize(sf::Vector2f(1280.f, 720.f));
+    pauseOverlay.setFillColor(sf::Color(0, 0, 0, 150));
+
+    ResourceManager::getInstance().playMusic("resources/sounds/GameBg.wav", true, 30.0f);
 }
 
-
 void GameState::handleInput(sf::RenderWindow& window) {
-
     sf::Event event{};
 
     while (window.pollEvent(event)) {
+        input.update();
 
-        input.update(); //use Input manager
-        player.handleInput(); // let the player read input
+        // Pause/Unpause with P key
+        if (event.type == sf::Event::KeyPressed) {
+            if (event.key.code == sf::Keyboard::P) {
+                togglePause();
+                if (isPaused) continue;
+            }
+        }
+
+        // If game is paused, only handle unpause
+        if (isPaused) {
+            if (event.type == sf::Event::KeyPressed) {
+                if (event.key.code == sf::Keyboard::P) {
+                    togglePause();
+                }
+            }
+            continue;
+        }
+
+        player.handleInput();
 
         if (event.type == sf::Event::KeyPressed) {
             if (event.key.code == sf::Keyboard::Tab) {
                 static bool usingFull = false;
                 usingFull = !usingFull;
                 window.setView(usingFull ? full : view);
+                ResourceManager::getInstance().playSound("resources/sounds/Coin.wav", 30.0f);
             }
         }
         if (event.type == sf::Event::KeyPressed) {
@@ -78,20 +113,22 @@ void GameState::handleInput(sf::RenderWindow& window) {
                 float dir = player.isFacingRight() ? 1.f : -1.f;
                 sf::Vector2f pos = player.getSprite().getPosition();
 
-                // spawn slightly in front of player (tweak offsets)
                 float spawnX = pos.x + (dir * 30.f);
                 float spawnY = pos.y + player.getSprite().getGlobalBounds().height * 0.65f;
 
                 projectiles.emplace_back(spawnX, spawnY, dir, projectileTexture);
+
+                ResourceManager::getInstance().playSound("resources/sounds/Jump.wav", 60.0f);
             }
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::H)) {
             static float lastPress = 0;
             float now = clock.getElapsedTime().asSeconds();
-            if (now - lastPress > 0.5f) { // prevents spamming
+            if (now - lastPress > 0.5f) {
                 player.damage();
                 lastPress = now;
+                ResourceManager::getInstance().playSound("resources/sounds/Jump.wav", 70.0f);
             }
         }
 
@@ -100,13 +137,17 @@ void GameState::handleInput(sf::RenderWindow& window) {
 
         if (event.type == sf::Event::KeyPressed &&
             event.key.code == sf::Keyboard::Escape) {
-            manager.push(std::make_unique<KingdomSelectionState>(manager));   // Return to kingdom selection
+            ResourceManager::getInstance().playSound("resources/sounds/Coin.wav", 50.0f);
+            manager.push(std::make_unique<KingdomSelectionState>(manager));
         }
     }
 }
 
-
 void GameState::update(float dt) {
+    if (isPaused) {
+        return;
+    }
+
     input.update();
     player.update(dt);
 
@@ -120,7 +161,8 @@ void GameState::update(float dt) {
     //hazard collision
     for (const sf::FloatRect& h : map.getHazards()) {
         if (playerBounds.intersects(h)) {
-            player.damage(); //lose a life
+            player.damage();
+            ResourceManager::getInstance().playSound("resources/sounds/Jump.wav", 80.0f);
             break;
         }
     }
@@ -129,8 +171,9 @@ void GameState::update(float dt) {
     for (auto it = map.collectables.begin(); it != map.collectables.end();) {
         if (playerBounds.intersects(*it)) {
             std::cout << "Collected coin!\n";
-            player.addCoin(); //increase coin count
-            it = map.collectables.erase(it); //remove coin
+            player.addCoin();
+            ResourceManager::getInstance().playSound("resources/sounds/Coin.wav", 70.0f);
+            it = map.collectables.erase(it);
         }
         else ++it;
     }
@@ -142,7 +185,8 @@ void GameState::update(float dt) {
         if (playerBounds.intersects(e.getBounds())) {
             std::cout << "Player hit by enemy!\n";
             player.damage();
-            // player bounces back
+            ResourceManager::getInstance().playSound("resources/sounds/Jump.wav", 90.0f);
+
             sf::Vector2f knockback = player.isFacingRight() ? sf::Vector2f(-30.f, -20.f) : sf::Vector2f(30.f, -20.f);
             player.getSprite().move(knockback);
             break;
@@ -153,20 +197,20 @@ void GameState::update(float dt) {
     for (auto p = projectiles.begin(); p != projectiles.end();) {
         p->update(dt);
 
-        bool projectileRemoved = false;  // mark if we erased projectile
+        bool projectileRemoved = false;
 
         for (auto e = enemies.begin(); e != enemies.end();) {
             if (p->getBounds().intersects(e->getBounds())) {
                 std::cout << "Enemy has been defeated!\n";
 
-                // Remove enemy
+                ResourceManager::getInstance().playSound("resources/sounds/Coin.wav", 80.0f);
+
                 e = enemies.erase(e);
 
-                // Remove projectile
                 p = projectiles.erase(p);
                 projectileRemoved = true;
 
-                break;  // break out of enemy loop — projectile is gone
+                break;
             } else {
                 ++e;
             }
@@ -178,19 +222,18 @@ void GameState::update(float dt) {
         ++p;
     }
 
-
     //end of level door logic
     for (const sf::FloatRect& door : map.getLevelLogic()) {
         if (playerBounds.intersects(door)) {
             std::cout << "Level Complete!\n";
+            ResourceManager::getInstance().playSound("resources/sounds/LevelCompleted.wav", 100.0f);
             break;
         }
     }
 
-
     //switch to gameoverstate if player dies
     if (player.dead()) {
-        //manager.pop();
+        ResourceManager::getInstance().playSound("resources/sounds/Jump.wav", 100.0f);
         manager.push(std::make_unique<GameOverState>(manager, window));
         return;
     }
@@ -198,13 +241,10 @@ void GameState::update(float dt) {
     //platform collision
     for (const sf::FloatRect& p : map.getPlatforms())
     {
-        // check intersection
         if (playerBounds.intersects(p))
         {
-            // ---- LANDING ON PLATFORM (coming from above) ----
             if (playerVel.y > 0 && playerBounds.top + playerBounds.height - 5 < p.top)
             {
-                // snap player on top of platform
                 playerPos.y = p.top - playerBounds.height;
                 player.setPosition(playerPos);
 
@@ -212,7 +252,6 @@ void GameState::update(float dt) {
                 groundedThisFrame = true;
             }
 
-            // (optional) prevent hitting head on platform
             else if (playerVel.y < 0 && playerBounds.top > p.top + p.height - 5)
             {
                 playerPos.y = p.top + p.height;
@@ -224,12 +263,22 @@ void GameState::update(float dt) {
     }
     player.setOnGround(groundedThisFrame);
 
-
     if (input.isKeyPressedOnce(sf::Keyboard::Escape)) {
         // open pause menu
     }
 }
 
+void GameState::togglePause() {
+    isPaused = !isPaused;
+
+    if (isPaused) {
+        ResourceManager::getInstance().playSound("resources/sounds/Coin.wav", 50.0f);
+        ResourceManager::getInstance().pauseMusic();
+    } else {
+        ResourceManager::getInstance().playSound("resources/sounds/Coin.wav", 50.0f);
+        ResourceManager::getInstance().resumeMusic();
+    }
+}
 
 void GameState::render(sf::RenderWindow& window) {
     window.setView(full);
@@ -246,20 +295,19 @@ void GameState::render(sf::RenderWindow& window) {
     for (auto& p : projectiles)
         p.render(window);
 
-
     for (auto& e : enemies)
         e.render(window);
 
     window.setView(window.getDefaultView());
 
-    // Draw hearts (fade individually as health decreases)
+    // Draw hearts
     for (int i = 0; i < 3; ++i) {
         heartSprite.setPosition(10.f + i * 50.f, 10.f);
 
         if (i < player.getLives()) {
-            heartSprite.setColor(sf::Color(255, 255, 255, 255)); // visible
+            heartSprite.setColor(sf::Color(255, 255, 255, 255));
         } else {
-            heartSprite.setColor(sf::Color(255, 255, 255, 70)); // faded
+            heartSprite.setColor(sf::Color(255, 255, 255, 70));
         }
         window.draw(heartSprite);
     }
@@ -271,4 +319,12 @@ void GameState::render(sf::RenderWindow& window) {
     coinText.setPosition(1200.f, 20.f);
     window.draw(coinText);
 
+    // Draw pause icon
+    window.draw(pauseIconSprite);
+
+    // Draw pause overlay and text if paused
+    if (isPaused) {
+        window.draw(pauseOverlay);
+        window.draw(pauseText);
+    }
 }

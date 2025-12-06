@@ -57,6 +57,8 @@ add_executable(the_quest
         src/Kingdom1LevelState.hpp
         src/Kingdom2LevelState.cpp
         src/Kingdom2LevelState.hpp
+        src/HowToPlayState.hpp
+        src/HowToPlayState.cpp
 )
 
 # Include SFML headers
@@ -68,4 +70,5 @@ target_link_libraries(the_quest
     sfml-window
     sfml-system
     tmxlite
+    sfml-audio
 )

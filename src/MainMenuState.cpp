@@ -1,14 +1,15 @@
 #include "MainMenuState.hpp"
 #include "GameState.hpp"
-//#include "KingdomSelectionState"
-//#include "SettingsState"
-#include <iostream>
-
 #include "KingdomSelectionState.hpp"
 #include "SettingsState.hpp"
+#include "ResourceManager.hpp"
+#include <iostream>
+
+// You'll also need a HowToPlayState.hpp - I'll show you how to create it below
+#include "HowToPlayState.hpp"  // You'll need to create this
 
 MainMenuState::MainMenuState(StateManager& manager)
-    : manager(manager){
+    : manager(manager) {
 
     font.loadFromFile("resources/fonts/MedievalSharp-Regular.ttf");
 
@@ -41,17 +42,29 @@ MainMenuState::MainMenuState(StateManager& manager)
     settingsText.setOutlineThickness(2);
     settingsText.setOutlineColor(sf::Color::Black);
 
+    // How to Play - ADD THIS
+    howToPlayText.setFont(font);
+    howToPlayText.setString("How to Play");
+    howToPlayText.setCharacterSize(40);
+    howToPlayText.setPosition(500, 410);  // Adjusted position
+    howToPlayText.setOutlineThickness(2);
+    howToPlayText.setOutlineColor(sf::Color::Black);
+
     // Quit
     quitText.setFont(font);
     quitText.setString("Quit");
     quitText.setCharacterSize(40);
-    quitText.setPosition(500, 410);
+    quitText.setPosition(500, 490);  // Moved down
     quitText.setOutlineThickness(2);
     quitText.setOutlineColor(sf::Color::Black);
 
-    options = { &playText, &settingsText, &quitText };
+    // Update options vector to include How to Play - REPLACE your existing line
+    options = { &playText, &settingsText, &howToPlayText, &quitText };
 
     updateSelection();
+
+    // Play main menu background music
+    ResourceManager::getInstance().playMusic("resources/sounds/MainMenu.wav", true, 40.0f);
 }
 
 void MainMenuState::handleInput(sf::RenderWindow& window) {
@@ -69,22 +82,31 @@ void MainMenuState::handleInput(sf::RenderWindow& window) {
             if (event.key.code == sf::Keyboard::Up) {
                 selectedIndex = (selectedIndex - 1 + options.size()) % options.size();
                 updateSelection();
+                ResourceManager::getInstance().playSound("resources/sounds/Jump.wav", 30.0f);
             }
 
             if (event.key.code == sf::Keyboard::Down) {
                 selectedIndex = (selectedIndex + 1) % options.size();
                 updateSelection();
+                ResourceManager::getInstance().playSound("resources/sounds/Jump.wav", 30.0f);
             }
 
             if (event.key.code == sf::Keyboard::Enter) {
 
                 if (selectedIndex == 0) {
+                    ResourceManager::getInstance().playSound("resources/sounds/Coin.wav", 60.0f);
                     manager.push(std::make_unique<KingdomSelectionState>(manager));
                 }
                 else if (selectedIndex == 1) {
+                    ResourceManager::getInstance().playSound("resources/sounds/Coin.wav", 60.0f);
                     manager.push(std::make_unique<SettingsState>(manager));
                 }
-                else if (selectedIndex == 2) {
+                else if (selectedIndex == 2) {  // ADDED: How to Play
+                    ResourceManager::getInstance().playSound("resources/sounds/Coin.wav", 60.0f);
+                    manager.push(std::make_unique<HowToPlayState>(manager));  // You need to create this
+                }
+                else if (selectedIndex == 3) {  // Changed from 2 to 3
+                    ResourceManager::getInstance().playSound("resources/sounds/Jump.wav", 50.0f);
                     window.close();
                 }
             }
@@ -92,13 +114,16 @@ void MainMenuState::handleInput(sf::RenderWindow& window) {
     }
 }
 
-void MainMenuState::update(float dt) {}
+void MainMenuState::update(float dt) {
+    // No changes needed here
+}
 
 void MainMenuState::render(sf::RenderWindow& window) {
     window.draw(backgroundSprite);
     window.draw(title);
     window.draw(playText);
     window.draw(settingsText);
+    window.draw(howToPlayText);  // ADD THIS LINE
     window.draw(quitText);
 }
 
