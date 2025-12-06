@@ -45,6 +45,16 @@ private:
     std::vector<Projectile> projectiles;
     sf::Texture* projectileTexture = nullptr;
     std::vector<Enemy> enemies;
+
+    //HUD
+    sf::Sprite heartSprite;
+    sf::Texture* heartTexture;
+    sf::Sprite coinSprite;
+    sf::Texture* hdCoinTexture;
+    sf::Font font;
+    sf::Text coinText;
+    sf::Clock clock; //measure time between heart damages
+    int coinCount = 0;
 };
 
 

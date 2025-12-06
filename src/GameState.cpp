@@ -4,6 +4,7 @@
 #include "Enemy.hpp"
 #include "Projectile.hpp"
 #include "GameOverState.hpp"
+#include "KingdomSelectionState.hpp"
 
 
 GameState::GameState(StateManager& manager)
@@ -13,21 +14,43 @@ GameState::GameState(StateManager& manager)
         std::cerr << " ERROR: Failed to load tilemap in Gamestate\n";
     }
 
+    //energy surge
     projectileTexture = ResourceManager::getInstance().getTexture("resources/tilesets/Sprites/Tiles/surge.png");
     if (!projectileTexture) {
         std::cerr << "Failed to load projectile texture\n";
     }
 
+    //enemy
     for (auto& r : map.getEnemies()) {
         enemies.emplace_back(EnemyType::Static,
                              ResourceManager::getInstance().getTexture("resources/tilesets/Sprites/Enemies/Default/slime_normal_walk_a.png"),
-                             r.left,
-                             r.top);
+                             r.left, r.top);
     }
 
-
+    //gameplay coin for collection
     coinTexture = ResourceManager::getInstance().getTexture("resources/tilesets/Sprites/Tiles/Default/coin_gold.png");
     coinTexture->setSmooth(false);
+
+    //HUD heart and coin icons - load textures
+    heartTexture = ResourceManager::getInstance().getTexture("resources/tilesets/Sprites/Tiles/Default/hud_heart.png");
+    if (!heartTexture)
+        std::cerr << "Failed to load heart texture\n";
+    hdCoinTexture = ResourceManager::getInstance().getTexture("resources/tilesets/Sprites/Tiles/Default/hud_coin.png");
+    if (!heartTexture)
+        std::cerr << "Failed to load coin texture\n";
+
+    heartSprite.setTexture(*heartTexture);
+    heartSprite.setScale(1.0f, 1.0f);
+    coinSprite.setTexture(*hdCoinTexture);
+    coinSprite.setScale(1.0f, 1.0f);
+
+    // Load font for HUD text
+    if (!font.loadFromFile("resources/fonts/Vipnagorgialla Rg.otf"))
+        std::cerr << "Failed to load font" << std::endl;
+
+    coinText.setFont(font);
+    coinText.setCharacterSize(32);
+    coinText.setFillColor(sf::Color::Black);
 
     //full map view
     full = map.getFullMapView();
@@ -63,12 +86,21 @@ void GameState::handleInput(sf::RenderWindow& window) {
             }
         }
 
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::H)) {
+            static float lastPress = 0;
+            float now = clock.getElapsedTime().asSeconds();
+            if (now - lastPress > 0.5f) { // prevents spamming
+                player.damage();
+                lastPress = now;
+            }
+        }
+
         if (event.type == sf::Event::Closed)
             window.close();
 
         if (event.type == sf::Event::KeyPressed &&
             event.key.code == sf::Keyboard::Escape) {
-            manager.pop();   // Return to previous state (menu)
+            manager.push(std::make_unique<KingdomSelectionState>(manager));   // Return to kingdom selection
         }
     }
 }
@@ -77,6 +109,8 @@ void GameState::handleInput(sf::RenderWindow& window) {
 void GameState::update(float dt) {
     input.update();
     player.update(dt);
+
+    coinText.setString(std::to_string(player.getCoins()));
 
     sf::FloatRect playerBounds = player.getSprite().getGlobalBounds();
     sf::Vector2f playerPos = player.getSprite().getPosition();
@@ -139,7 +173,6 @@ void GameState::update(float dt) {
         }
 
         if (projectileRemoved) {
-            // we already erased projectile — don't increment p
             continue;
         }
         ++p;
@@ -150,7 +183,6 @@ void GameState::update(float dt) {
     for (const sf::FloatRect& door : map.getLevelLogic()) {
         if (playerBounds.intersects(door)) {
             std::cout << "Level Complete!\n";
-            //push rewards page (not implemented yet)
             break;
         }
     }
@@ -218,9 +250,25 @@ void GameState::render(sf::RenderWindow& window) {
     for (auto& e : enemies)
         e.render(window);
 
-    //enemies.draw(window);
+    window.setView(window.getDefaultView());
 
-    //window.setView(window.getDefaultView());
-    //ui.draw(window);
+    // Draw hearts (fade individually as health decreases)
+    for (int i = 0; i < 3; ++i) {
+        heartSprite.setPosition(10.f + i * 50.f, 10.f);
+
+        if (i < player.getLives()) {
+            heartSprite.setColor(sf::Color(255, 255, 255, 255)); // visible
+        } else {
+            heartSprite.setColor(sf::Color(255, 255, 255, 70)); // faded
+        }
+        window.draw(heartSprite);
+    }
+
+    // Draw coin HUD
+    coinSprite.setPosition(1130.f, 10.f);
+    window.draw(coinSprite);
+
+    coinText.setPosition(1200.f, 20.f);
+    window.draw(coinText);
 
 }
