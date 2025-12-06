@@ -342,7 +342,7 @@ void TileMap::draw(sf::RenderTarget& target, sf::RenderStates states) const {
         target.draw(sprite, states);
 
 
-    // Draw object-layer sprites (platforms/hazards/enemies/logic)
+    // Draw object-layer sprites (platforms/hazards/logic)
     for (const auto& o : platformSprites) target.draw(o.sprite, states);
     for (const auto& o : hazardSprites) target.draw(o.sprite, states);
     for (const auto& o : levelLogicSprites) target.draw(o.sprite, states);

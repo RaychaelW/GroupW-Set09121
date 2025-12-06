@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.2" name="quest" tilewidth="256" tileheight="256" tilecount="435" columns="0">
+<tileset version="1.10" tiledversion="1.11.2" name="quest" tilewidth="500" tileheight="500" tilecount="435" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <image source="Sprites/Backgrounds/Default/background_clouds.png" width="256" height="256"/>
@@ -1300,10 +1300,10 @@
  <tile id="432">
   <image source="Sprites/Tiles/Default/window.png" width="64" height="64"/>
  </tile>
- <tile id="433" x="0" y="0" width="256" height="256">
+ <tile id="433">
   <image source="../../../../Downloads/dungeon_bg_cobble.png" width="500" height="500"/>
  </tile>
- <tile id="434" x="0" y="0" width="256" height="256">
+ <tile id="434">
   <image source="../../../../Downloads/dungeon_bg_window.png" width="500" height="500"/>
  </tile>
 </tileset>
