@@ -22,10 +22,12 @@ GameState::GameState(StateManager& manager)
     }
 
     //enemy
-    for (auto& r : map.getEnemies()) {
-        enemies.emplace_back(EnemyType::Static,
-                             ResourceManager::getInstance().getTexture("resources/tilesets/Sprites/Enemies/Default/slime_normal_walk_a.png"),
-                             r.left, r.top);
+    for (auto& spawn : map.getEnemies()) {
+        EnemyType type = map.getEnemyTypeFromGID(spawn.gid);
+
+        enemies.emplace_back(
+        type,
+        KingdomTheme::Kingdom1, spawn.bounds.left, spawn.bounds.top);
     }
 
     //gameplay coin for collection
@@ -189,7 +191,7 @@ void GameState::update(float dt) {
                 stateDelayClock.restart();
             }
             if (pendingStateChange && stateDelayClock.getElapsedTime().asSeconds() >= 0.5f) {
-                manager.push(std::make_unique<Kingdom1LevelState>(manager));
+                manager.push(std::make_unique<Kingdom1LevelState>(manager, KingdomID::Kingdom1, LevelID::Level1));
                 pendingStateChange = false;
 
             }
@@ -201,7 +203,7 @@ void GameState::update(float dt) {
     //switch to gameoverstate if player dies
     if (player.dead()) {
         //manager.pop();
-        manager.push(std::make_unique<GameOverState>(manager, window));
+        manager.push(std::make_unique<GameOverState>(manager, kingdom, level, levelNumber));
         return;
     }
 

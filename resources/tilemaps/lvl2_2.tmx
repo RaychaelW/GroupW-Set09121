@@ -91,9 +91,21 @@
   <object id="21" gid="430" x="1280" y="672" width="64" height="64"/>
  </objectgroup>
  <objectgroup id="5" name="enemies">
-  <object id="34" gid="81" x="321.333" y="570" width="64" height="64"/>
-  <object id="47" gid="96" x="1213.83" y="382.667" width="64" height="64"/>
-  <object id="49" gid="78" x="1473" y="542.667" width="64" height="64"/>
+  <object id="34" gid="81" x="321.333" y="570" width="64" height="64">
+   <properties>
+    <property name="type" value="jumping"/>
+   </properties>
+  </object>
+  <object id="47" gid="96" x="1213.83" y="382.667" width="64" height="64">
+   <properties>
+    <property name="type" value="static"/>
+   </properties>
+  </object>
+  <object id="49" gid="78" x="1473" y="542.667" width="64" height="64">
+   <properties>
+    <property name="type" value="patrol"/>
+   </properties>
+  </object>
  </objectgroup>
  <objectgroup id="6" name="collectables">
   <object id="35" gid="156" x="768" y="383" width="64" height="64"/>

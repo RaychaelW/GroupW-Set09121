@@ -7,10 +7,11 @@
 #include <tmxlite/Map.hpp>
 #include "Tilemap.hpp"
 
-Enemy::Enemy(EnemyType t, const sf::Texture* texture, float x, float y)
-: type(t)
+Enemy::Enemy(EnemyType t, KingdomTheme k, float x, float y)
+    : type(t), theme(k)
 {
-    if (texture) sprite.setTexture(*texture);
+    loadTextureForType(t, k);
+    sprite.setTexture(*texture);
     sprite.setPosition(x, y);
     sprite.setOrigin(0.f, 0.f);
 
@@ -19,8 +20,78 @@ Enemy::Enemy(EnemyType t, const sf::Texture* texture, float x, float y)
     rightLimit = x + 80.f;
 }
 
+void Enemy::loadTextureForType(EnemyType type, KingdomTheme theme)
+{
+    switch (theme)
+    {
+        case KingdomTheme::Kingdom1:
+            switch (type)
+            {
+            case EnemyType::Static:
+                    texture = ResourceManager::getInstance().getTexture("resources/tilesets/Sprites/Spritesheets/spritesheet-enemies-default.png");
+                    initAnimation(100, 100, 3);
+                    frames= {{128, 213, 64, 44}, {127, 87, 64, 44}, {128, 150, 64, 44}};
+                    break;
+
+            case EnemyType::Patrol:
+                    texture = ResourceManager::getInstance().getTexture("resources/tilesets/Sprites/Spritesheets/spritesheet-enemies-default.png");
+                    initAnimation(100, 100, 3);
+                    frames= {{321, 131, 64, 62}, {320, 194, 64, 62}, {320, 256, 64, 62}};
+                    break;
+
+            case EnemyType::Jumping:
+                    texture = ResourceManager::getInstance().getTexture("resources/tilesets/Sprites/Spritesheets/spritesheet-enemies-default.png");
+                    initAnimation(100, 100, 3);
+                    frames= {{318, 70, 66, 60}, {319, 1, 66, 64}, {254, 446, 66, 64}};
+                    break;
+
+            default:
+                    texture = ResourceManager::getInstance().getTexture("resources/tilesets/Sprites/Spritesheets/spritesheet-enemies-default.png");
+                    initAnimation(100, 100, 3);
+                    frames= {{128, 213, 64, 44}, {127, 87, 64, 44}, {128, 150, 64, 44}};
+                    break;
+            }
+            break;
+
+        case KingdomTheme::Kingdom2:
+            texture = ResourceManager::getInstance().getTexture("resources/tilesets/Sprites/Spritesheets/spritesheet-enemies-default.png");
+            initAnimation(100, 100, 3);
+            frames= {{196, 200, 57, 58}, {195, 135, 57, 58}, {193, 79, 62, 49}};
+
+            break;
+
+        default:
+            texture = ResourceManager::getInstance().getTexture("resources/tilesets/Sprites/Spritesheets/spritesheet-enemies-default.png");
+            initAnimation(100, 100, 3);
+            frames= {{196, 200, 57, 58}, {195, 135, 57, 58}, {193, 79, 62, 49}};
+            break;
+    }
+    sprite.setTexture(*texture);
+}
+
+void Enemy::initAnimation(int frameWidth, int frameHeight, int numFrames){
+    frames.clear();
+    for (int i = 0; i < numFrames; ++i)
+    {
+        frames.emplace_back(i * frameWidth, 0, frameWidth, frameHeight);
+    }
+    sprite.setTextureRect(frames[0]);
+
+    // flip horizontally if direction is negative
+    sprite.setScale((direction < 0.f) ? -1.f : 1.f, 1.f);
+}
+
 void Enemy::update(float dt) {
     if (!alive) return;
+
+    // Animate
+    animTimer += dt;
+    if (animTimer >= animInterval)
+    {
+        animTimer = 0.f;
+        currentFrame = (currentFrame + 1) % frames.size();
+        sprite.setTextureRect(frames[currentFrame]);
+    }
 
     switch (type) {
         case EnemyType::Patrol: {
@@ -50,17 +121,6 @@ void Enemy::update(float dt) {
             sprite.move(0.f, vVel * dt);
             break;
         }
-        case EnemyType::Flying: {
-            // simple bobbing motion
-            static float t = 0.f;
-            t += dt;
-            float dy = std::sin(t * 2.f) * 6.f * dt * 60.f;
-            sprite.move(0.f, dy);
-            break;
-        }
-        case EnemyType::Shooter:
-            // may have its own logic; left empty for now
-            break;
         default:
             break;
     }

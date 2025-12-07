@@ -105,29 +105,17 @@ void LevelSelectState::handleInput(sf::RenderWindow& window) {
 
             if (event.key.code == sf::Keyboard::Enter) {
                 if (selectedIndex == 0) { // Level 1
-                    // Go to the correct kingdom level
-                    if (currentKingdomId == 1) {
-                        manager.push(std::make_unique<GameState>(manager));
-                    } else {
-                        manager.push(std::make_unique<Kingdom2LevelState>(manager));
-                    }
+                    manager.push(std::make_unique<Kingdom1LevelState>(manager, KingdomID::Kingdom1, LevelID::Level1, 1));
+
                 }
                 else if (selectedIndex == 1) { // Level 2
-                    // For now, go to same as level 1
-                    if (currentKingdomId == 1) {
-                        manager.push(std::make_unique<Kingdom1LevelState>(manager));
-                    } else {
-                        manager.push(std::make_unique<Kingdom2LevelState>(manager));
-                    }
+                    manager.push(std::make_unique<Kingdom1LevelState>(manager, KingdomID::Kingdom1, LevelID::Level2, 2));
                 }
+
                 else if (selectedIndex == 2) { // Level 3
-                    // For now, go to same as level 1
-                    if (currentKingdomId == 1) {
-                        manager.push(std::make_unique<Kingdom1LevelState>(manager));
-                    } else {
-                        manager.push(std::make_unique<Kingdom2LevelState>(manager));
-                    }
+                    manager.push(std::make_unique<Kingdom1LevelState>(manager, KingdomID::Kingdom1, LevelID::Level3, 3));
                 }
+
                 else if (selectedIndex == 3) { // Back
                     manager.push(std::make_unique<KingdomSelectionState>(manager));
                 }
@@ -141,15 +129,6 @@ void LevelSelectState::update(float dt) {
 }
 
 void LevelSelectState::render(sf::RenderWindow& window) {
-    /* Draw colored background based on kingdom
-    if (currentKingdomId == 1) {
-        // Shadow Caverns - Purple background
-        window.clear(sf::Color(80, 40, 120)); // Dark purple
-    } else {
-        // Forest Realm - Green background
-        window.clear(sf::Color(40, 80, 40)); // Dark green
-    }
-    */
 
     // If you want to keep the image background, uncomment:
     window.draw(backgroundSprite);

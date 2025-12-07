@@ -244,7 +244,12 @@ void TileMap::loadObjectLayers() {
             if (name == "platforms") platforms.push_back(rect);
             else if (name == "hazards") hazards.push_back(rect);
             else if (name == "collectables") collectables.push_back(rect);
-            else if (name == "enemies") enemies.push_back(rect);
+            else if (name == "enemies") {
+                EnemySpawnInfo es;
+                es.bounds = rect;
+                es.gid = obj.getTileID();
+                enemySpawns.push_back(es);
+            }
             else if (name == "level_logic") levelLogic.push_back(rect);
 
             // If object has NO GID → skip rendering
@@ -322,6 +327,15 @@ void TileMap::loadObjectLayers() {
     }
 }
 
+EnemyType TileMap::getEnemyTypeFromGID(uint32_t gid) const {
+    // mapping with gids
+    if (gid == 104) return EnemyType::Static;
+    if (gid == 78) return EnemyType::Patrol;
+    if (gid == 514) return EnemyType::Patrol;
+    if (gid == 81) return EnemyType::Jumping;
+
+    return EnemyType::Static;
+}
 
 sf::Vector2u TileMap::getMapPixelSize() const {
     auto count = m_map.getTileCount();

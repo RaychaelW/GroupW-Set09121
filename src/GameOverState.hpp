@@ -7,12 +7,14 @@
 
 
 #include <SFML/Graphics.hpp>
+
+#include "Kingdom1LevelState.hpp"
 #include "State.hpp"
 #include "StateManager.hpp"
 
 class GameOverState : public State {
 public:
-    GameOverState(StateManager& manager, sf::RenderWindow& window);
+    GameOverState(StateManager& manager, KingdomID kingdom, LevelID level, int levelNumber);
 
     void handleInput(sf::RenderWindow& window) override;
     void update(float dt) override;
@@ -23,6 +25,10 @@ private:
     sf::RenderWindow& window;
     sf::Font font;
     sf::Text text;
+
+    KingdomID kingdom;
+    LevelID level;
+    int levelNumber;
 };
 
 

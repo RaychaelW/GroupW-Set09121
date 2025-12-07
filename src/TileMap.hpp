@@ -13,6 +13,8 @@
 #include <map>
 #include <unordered_map>
 
+#include "Enemy.hpp"
+
 struct ObjectData {
     std::string name;
     std::string type;
@@ -38,17 +40,23 @@ public:
     // view that shows the whole map
     sf::View getFullMapView() const;
 
+    struct EnemySpawnInfo {
+        sf::FloatRect bounds;
+        uint32_t gid = 0; //title id
+    };
+
     //object groups for gameplay/collisions
     std::vector<sf::FloatRect> platforms;
     std::vector<sf::FloatRect> hazards;
     std::vector<sf::FloatRect> collectables;
+    std::vector<EnemySpawnInfo> enemySpawns;
     std::vector<sf::FloatRect> enemies;
     std::vector<sf::FloatRect> levelLogic;
 
     const std::vector<sf::FloatRect>& getPlatforms() const { return platforms; }
     const std::vector<sf::FloatRect>& getHazards() const { return hazards; }
     const std::vector<sf::FloatRect>& getCollectables() const { return collectables; }
-    const std::vector<sf::FloatRect>& getEnemies() const { return enemies; }
+    const std::vector<EnemySpawnInfo>& getEnemies() const { return enemySpawns; }
     const std::vector<sf::FloatRect>& getLevelLogic() const { return levelLogic; }
 
     //renderable object sprites for drawing
@@ -61,6 +69,8 @@ public:
     sf::Vector2f getPlayerSpawn() const {
         return getPosition();
     }
+
+    EnemyType getEnemyTypeFromGID(uint32_t gid) const;
 
 private:
     tmx::Map m_map; //tmxlite map object
