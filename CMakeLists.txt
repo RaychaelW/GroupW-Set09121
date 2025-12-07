@@ -15,7 +15,6 @@ SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIRECTORY})
 add_subdirectory("lib/SFML")
 set(SFML_INCS "lib/SFML/include")
 link_directories("${CMAKE_BINARY_DIR}/lib/SFML/lib")
-
 add_subdirectory(lib/tmxlite/tmxlite)
 set(SFML_INCS "lib/tmxlite/tmxlite/include")
 
@@ -57,6 +56,7 @@ add_executable(the_quest
         src/Kingdom1LevelState.hpp
         src/Kingdom2LevelState.cpp
         src/Kingdom2LevelState.hpp
+        src/GameOverState.cpp
 )
 
 # Include SFML headers

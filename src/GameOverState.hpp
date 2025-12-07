@@ -5,14 +5,19 @@
 #ifndef THE_QUEST_GAMEOVERSTATE_HPP
 #define THE_QUEST_GAMEOVERSTATE_HPP
 
-
+#pragma once
 #include <SFML/Graphics.hpp>
 #include "State.hpp"
 #include "StateManager.hpp"
+#include "GameState.hpp"
+#include "MainMenuState.hpp"
+
+
+ //Displays the Game Over screen with restart and menu options.
 
 class GameOverState : public State {
 public:
-    GameOverState(StateManager& manager, sf::RenderWindow& window);
+    GameOverState(StateManager& manager);
 
     void handleInput(sf::RenderWindow& window) override;
     void update(float dt) override;
@@ -20,9 +25,9 @@ public:
 
 private:
     StateManager& manager;
-    sf::RenderWindow& window;
     sf::Font font;
-    sf::Text text;
+    sf::Text titleText;
+    sf::Text instructionText;
 };
 
 

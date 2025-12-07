@@ -201,7 +201,7 @@ void GameState::update(float dt) {
     //switch to gameoverstate if player dies
     if (player.dead()) {
         //manager.pop();
-        manager.push(std::make_unique<GameOverState>(manager, window));
+        manager.push(std::make_unique<GameOverState>(manager));
         return;
     }
 
