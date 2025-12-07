@@ -57,6 +57,10 @@ private:
     sf::Text coinText;
     sf::Clock clock; //measure time between heart damages
     int coinCount = 0;
+
+    KingdomID kingdom;
+    LevelID level;
+    int levelNumber;
 };
 
 

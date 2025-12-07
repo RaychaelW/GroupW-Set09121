@@ -84,7 +84,11 @@
  </objectgroup>
 
  <objectgroup id="4" name="enemies" locked="1">
-  <object id="2" gid="104" x="895.833" y="570" width="64" height="64"/>
+  <object id="2" gid="104" x="895.833" y="570" width="64" height="64">
+    <properties>
+        <property name="type" value="static"/>
+    </properties>
+  </object>
  </objectgroup>
 
  <objectgroup id="5" name="collectables" locked="1">

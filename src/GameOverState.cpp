@@ -3,10 +3,12 @@
 #include "GameState.hpp"
 #include <iostream>
 
+#include "Kingdom1LevelState.hpp"
+#include "Kingdom2LevelState.hpp"
 
-GameOverState::GameOverState(StateManager& manager, sf::RenderWindow& window)
-: manager(manager), window(window)
-{
+
+GameOverState::GameOverState(StateManager& manager, KingdomID kingdom, LevelID level, int levelNumber)
+    : manager(manager), window(window), kingdom(kingdom), level(level), levelNumber(levelNumber) {
     if (!font.loadFromFile("resources/fonts/arial.ttf")) {
         std::cerr << "GameOverState: Failed to load font\n";
     }
@@ -24,7 +26,12 @@ void GameOverState::handleInput(sf::RenderWindow& window) {
         if (event.type == sf::Event::KeyPressed) {
             // player can retry level
             if (event.key.code == sf::Keyboard::R) {
-                manager.push(std::make_unique<GameState>(manager)); //start level 1 again
+                if (kingdom == KingdomID::Kingdom1) {
+                    manager.push(std::make_unique<Kingdom1LevelState>(manager, kingdom, level, levelNumber));
+                } else if (kingdom == KingdomID::Kingdom2) {
+                    manager.push(std::make_unique<Kingdom2LevelState>(manager, kingdom, level, levelNumber));
+                }
+                }
             }
             //player can return to menu
             else if (event.key.code == sf::Keyboard::M) {
@@ -33,7 +40,7 @@ void GameOverState::handleInput(sf::RenderWindow& window) {
             }
         }
     }
-}
+
 
 void GameOverState::update(float dt) {
 
