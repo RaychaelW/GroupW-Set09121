@@ -24,7 +24,8 @@ private:
     StateManager& manager;
     sf::RenderWindow& window;
     sf::Font font;
-    sf::Text text;
+    sf::Text titleText;
+    sf::Text instructionText;
 
     KingdomID kingdom;
     LevelID level;

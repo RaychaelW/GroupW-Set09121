@@ -12,11 +12,20 @@ GameOverState::GameOverState(StateManager& manager, KingdomID kingdom, LevelID l
     if (!font.loadFromFile("resources/fonts/arial.ttf")) {
         std::cerr << "GameOverState: Failed to load font\n";
     }
-    text.setFont(font);
-    text.setString("Game Over\nPress R to Retry\nPress M for Menu");
-    text.setCharacterSize(28);
-    text.setFillColor(sf::Color::White);
-    text.setPosition(100.f, 100.f);
+    // Game Over title
+    titleText.setFont(font);
+    titleText.setString("GAME OVER");
+    titleText.setCharacterSize(90);
+    titleText.setFillColor(sf::Color::Red);
+    titleText.setStyle(sf::Text::Bold);
+    titleText.setPosition(350.f, 200.f);
+
+    // Instructions
+    instructionText.setFont(font);
+    instructionText.setString("Press R to Restart or M for Menu");
+    instructionText.setCharacterSize(32);
+    instructionText.setFillColor(sf::Color::White);
+    instructionText.setPosition(380.f, 400.f);
 }
 
 void GameOverState::handleInput(sf::RenderWindow& window) {
@@ -48,6 +57,7 @@ void GameOverState::update(float dt) {
 
 void GameOverState::render(sf::RenderWindow& window) {
     window.clear(sf::Color::Black);
-    window.draw(text);
+    window.draw(titleText);
+    window.draw(instructionText);
     window.setView(window.getDefaultView());
 }
