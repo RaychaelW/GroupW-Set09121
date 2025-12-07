@@ -18,6 +18,8 @@ Enemy::Enemy(EnemyType t, KingdomTheme k, float x, float y)
     // sensible default patrol bounds around spawn
     leftLimit = x - 80.f;
     rightLimit = x + 80.f;
+
+    startY = sprite.getPosition().y;
 }
 
 void Enemy::loadTextureForType(EnemyType type, KingdomTheme theme)
@@ -54,19 +56,37 @@ void Enemy::loadTextureForType(EnemyType type, KingdomTheme theme)
             break;
 
         case KingdomTheme::Kingdom2:
-            texture = ResourceManager::getInstance().getTexture("resources/tilesets/Sprites/Spritesheets/spritesheet-enemies-default.png");
-            initAnimation(100, 100, 3);
-            frames= {{196, 200, 57, 58}, {195, 135, 57, 58}, {193, 79, 62, 49}};
+            switch (type)
+            {
+            case EnemyType::Static:
+                    texture = ResourceManager::getInstance().getTexture("resources/tilesets/Sprites/Spritesheets/spritesheet-enemies-default.png");
+                    initAnimation(100, 100, 3);
+                    frames= {{196, 200, 57, 58}, {195, 135, 57, 58}, {193, 79, 62, 49}};
+                    break;
 
-            break;
+            case EnemyType::Patrol:
+                    texture = ResourceManager::getInstance().getTexture("resources/tilesets/Sprites/Spritesheets/spritesheet-enemies-default.png");
+                    initAnimation(100, 100, 3);
+                    frames= {{321, 131, 64, 62}, {320, 194, 64, 62}, {320, 256, 64, 62}};
+                    break;
 
-        default:
-            texture = ResourceManager::getInstance().getTexture("resources/tilesets/Sprites/Spritesheets/spritesheet-enemies-default.png");
-            initAnimation(100, 100, 3);
-            frames= {{196, 200, 57, 58}, {195, 135, 57, 58}, {193, 79, 62, 49}};
+            case EnemyType::Jumping:
+                    texture = ResourceManager::getInstance().getTexture("resources/tilesets/Sprites/Spritesheets/spritesheet-enemies-default.png");
+                    initAnimation(100, 100, 3);
+                    frames= {{320, 70, 64, 59}, {318, 0, 67, 65}, {256, 447, 64, 65}};
+                    break;
+
+            default:
+                    texture = ResourceManager::getInstance().getTexture("resources/tilesets/Sprites/Spritesheets/spritesheet-enemies-default.png");
+                    initAnimation(100, 100, 3);
+                    frames= {{196, 200, 57, 58}, {195, 135, 57, 58}, {193, 79, 62, 49}};
+                    break;
+            }
             break;
     }
     sprite.setTexture(*texture);
+
+
 }
 
 void Enemy::initAnimation(int frameWidth, int frameHeight, int numFrames){
@@ -80,6 +100,7 @@ void Enemy::initAnimation(int frameWidth, int frameHeight, int numFrames){
     // flip horizontally if direction is negative
     sprite.setScale((direction < 0.f) ? -1.f : 1.f, 1.f);
 }
+
 
 void Enemy::update(float dt) {
     if (!alive) return;
@@ -107,6 +128,7 @@ void Enemy::update(float dt) {
             }
             break;
         }
+
         case EnemyType::Static:
             // no movement
             break;
@@ -115,10 +137,37 @@ void Enemy::update(float dt) {
             jumpTimer += dt;
             if (jumpTimer >= jumpInterval) {
                 jumpTimer = 0;
-                vVel = -300.f;
+                vVel = -500.f; //go upward
             }
             vVel += gravity * dt;
             sprite.move(0.f, vVel * dt);
+
+            // Frog is falling
+            if (vVel > 0 && jumpState == JumpState::JumpingUp)
+                jumpState = JumpState::Falling;
+
+            // Ground detection (simple)
+            if (sprite.getPosition().y > startY) {
+                sprite.setPosition(sprite.getPosition().x, startY);
+                vVel = 0.f;
+            }
+
+            // ANIMATION SELECTION
+            switch (jumpState) {
+                case JumpState::Idle:
+                    currentFrame = 0;
+                    break;
+
+                case JumpState::JumpingUp:
+                    currentFrame = 1;
+                    break;
+
+                case JumpState::Falling:
+                    currentFrame = 2;
+                    break;
+            }
+
+            sprite.setTextureRect(frames[currentFrame]);
             break;
         }
         default:

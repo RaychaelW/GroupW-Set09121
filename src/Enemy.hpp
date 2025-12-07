@@ -40,6 +40,8 @@ private:
     EnemyType type;
     KingdomTheme theme = KingdomTheme::Kingdom1;
 
+    enum class JumpState { Idle, JumpingUp, Falling };
+    JumpState jumpState;
 
     sf::Sprite sprite;
     const sf::Texture* texture = nullptr;
@@ -54,7 +56,8 @@ private:
     float vVel = 0.f;
     float gravity = 900.f;
     float jumpTimer = 0.f;
-    float jumpInterval = 2.0f;
+    float jumpInterval = 1.5f;
+    float startY;
 
     //animation
     std::vector<sf::IntRect> frames;

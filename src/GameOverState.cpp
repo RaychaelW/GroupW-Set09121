@@ -26,7 +26,11 @@ void GameOverState::handleInput(sf::RenderWindow& window) {
         if (event.type == sf::Event::KeyPressed) {
             // player can retry level
             if (event.key.code == sf::Keyboard::R) {
-                manager.push(std::make_unique<Kingdom1LevelState>(manager, kingdom, level, levelNumber));
+                if (kingdom == KingdomID::Kingdom1) {
+                    manager.push(std::make_unique<Kingdom1LevelState>(manager, kingdom, level, levelNumber));
+                } else if (kingdom == KingdomID::Kingdom2) {
+                    manager.push(std::make_unique<Kingdom2LevelState>(manager, kingdom, level, levelNumber));
+                }
                 }
             }
             //player can return to menu

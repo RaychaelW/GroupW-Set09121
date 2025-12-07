@@ -105,15 +105,26 @@ void LevelSelectState::handleInput(sf::RenderWindow& window) {
 
             if (event.key.code == sf::Keyboard::Enter) {
                 if (selectedIndex == 0) { // Level 1
-                    manager.push(std::make_unique<Kingdom1LevelState>(manager, KingdomID::Kingdom1, LevelID::Level1, 1));
-
+                    if (currentKingdomId == 1) {
+                        manager.push(std::make_unique<Kingdom1LevelState>(manager, KingdomID::Kingdom1, LevelID::Level1, 1));
+                    } else if (currentKingdomId == 2) {
+                        manager.push(std::make_unique<Kingdom2LevelState>(manager, KingdomID::Kingdom2, LevelID::Level1, 1));
+                    }
                 }
                 else if (selectedIndex == 1) { // Level 2
-                    manager.push(std::make_unique<Kingdom1LevelState>(manager, KingdomID::Kingdom1, LevelID::Level2, 2));
+                    if (currentKingdomId == 1) {
+                        manager.push(std::make_unique<Kingdom1LevelState>(manager, KingdomID::Kingdom1, LevelID::Level2, 2));
+                    } else if (currentKingdomId == 2) {
+                        manager.push(std::make_unique<Kingdom2LevelState>(manager, KingdomID::Kingdom2, LevelID::Level2, 2));
+                    }
                 }
 
                 else if (selectedIndex == 2) { // Level 3
-                    manager.push(std::make_unique<Kingdom1LevelState>(manager, KingdomID::Kingdom1, LevelID::Level3, 3));
+                    if (currentKingdomId == 1) {
+                        manager.push(std::make_unique<Kingdom1LevelState>(manager, KingdomID::Kingdom1, LevelID::Level3, 3));
+                    } else if (currentKingdomId == 2) {
+                        manager.push(std::make_unique<Kingdom2LevelState>(manager, KingdomID::Kingdom2, LevelID::Level3, 3));
+                    }
                 }
 
                 else if (selectedIndex == 3) { // Back

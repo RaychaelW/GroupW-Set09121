@@ -44,8 +44,7 @@ Kingdom1LevelState::Kingdom1LevelState(StateManager& manager, KingdomID kingdom,
 
 }
 
-void Kingdom1LevelState::loadLevel()
-{
+void Kingdom1LevelState::loadLevel() {
     // Load TMX map based on levelNumber
     std::string tmxPath = "resources/tilemaps/lvl" + std::to_string(levelNumber) + ".tmx";
     if (!map.load(tmxPath)) std::cerr << "Failed to load tilemap: " << tmxPath << "\n";
@@ -74,8 +73,7 @@ void Kingdom1LevelState::loadLevel()
 }
 
 
-void Kingdom1LevelState::loadEnemies()
-{
+void Kingdom1LevelState::loadEnemies() {
     enemies.clear();
     for (const auto& spawn : map.getEnemies()) {
         EnemyType type = getEnemyTypeFromGID(spawn.gid);
@@ -84,10 +82,8 @@ void Kingdom1LevelState::loadEnemies()
     }
 }
 
-EnemyType Kingdom1LevelState::getEnemyTypeFromGID(uint32_t gid)
-{
-    switch(gid)
-    {
+EnemyType Kingdom1LevelState::getEnemyTypeFromGID(uint32_t gid) {
+    switch(gid) {
         case 78: return EnemyType::Patrol;
         case 514: return EnemyType::Patrol;
         case 104: return EnemyType::Static;
@@ -97,8 +93,7 @@ EnemyType Kingdom1LevelState::getEnemyTypeFromGID(uint32_t gid)
 }
 
 
-void Kingdom1LevelState::handleInput(sf::RenderWindow& window)
-{
+void Kingdom1LevelState::handleInput(sf::RenderWindow& window){
     sf::Event event;
     while (window.pollEvent(event))
     {

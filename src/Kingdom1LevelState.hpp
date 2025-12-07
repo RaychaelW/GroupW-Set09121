@@ -29,7 +29,7 @@ enum class LevelID {
 
 class Kingdom1LevelState : public State {
 public:
-    Kingdom1LevelState(StateManager& manager, KingdomID kingdon, LevelID level, int levelNumber = 1);
+    Kingdom1LevelState(StateManager& manager, KingdomID kingdom, LevelID level, int levelNumber = 1);
 
     void handleInput(sf::RenderWindow& window) override;
     void update(float dt) override;
