@@ -42,6 +42,9 @@ Kingdom1LevelState::Kingdom1LevelState(StateManager& manager, KingdomID kingdom,
 
     full = map.getFullMapView();
 
+    //background music
+    ResourceManager::getInstance().playMusic("resources/sounds/GameBg.wav", true, 35.0f);
+
 }
 
 void Kingdom1LevelState::loadLevel() {
@@ -105,6 +108,7 @@ void Kingdom1LevelState::handleInput(sf::RenderWindow& window){
         if (event.type == sf::Event::KeyPressed)
         {
             if (event.key.code == sf::Keyboard::Escape)
+                ResourceManager::getInstance().playSound("resources/sounds/Coin.wav", 50.0f);
                 manager.push(std::make_unique<KingdomSelectionState>(manager));
 
             if (event.key.code == sf::Keyboard::E) {
@@ -147,6 +151,7 @@ void Kingdom1LevelState::update(float dt) {
         if (playerBounds.intersects(*it)) {
             std::cout << "Collected coin!\n";
             player.addCoin(); //increase coin count
+            ResourceManager::getInstance().playSound("resources/sounds/Coin.wav", 50.0f);
             it = map.collectables.erase(it); //remove coin
         }
         else ++it;
@@ -162,6 +167,7 @@ void Kingdom1LevelState::update(float dt) {
             // player bounces back
             sf::Vector2f knockback = player.isFacingRight() ? sf::Vector2f(-30.f, -20.f) : sf::Vector2f(30.f, -20.f);
             player.getSprite().move(knockback);
+            ResourceManager::getInstance().playSound("resources/sounds/Jump.wav", 80.0f);
             break;
         }
     }
@@ -200,15 +206,24 @@ void Kingdom1LevelState::update(float dt) {
     for (const sf::FloatRect& door : map.getLevelLogic()) {
         if (playerBounds.intersects(door)) {
             std::cout << "Level Complete!\n";
+            ResourceManager::getInstance().playSound("resources/sounds/LevelCompleted.wav", 100.0f);
             if (!pendingStateChange) {
                 pendingStateChange = true;
                 stateDelayClock.restart();
             }
             if (pendingStateChange && stateDelayClock.getElapsedTime().asSeconds() >= 0.5f) {
-                if (level == LevelID::Level1)
+                if (level == LevelID::Level1) {
                     manager.push(std::make_unique<Kingdom1LevelState>(manager, kingdom, LevelID::Level2, 2));
-                else if (level == LevelID::Level2)
+                    ResourceManager::getInstance().playSound("resources/sounds/KingdomCompleted.wav", 100.0f);
+                    // Stop background music and play victory music
+                    ResourceManager::getInstance().stopMusic();
+                }
+                else if (level == LevelID::Level2) {
                     manager.push(std::make_unique<Kingdom1LevelState>(manager, kingdom, LevelID::Level3, 3));
+                    ResourceManager::getInstance().playSound("resources/sounds/KingdomCompleted.wav", 100.0f);
+                    // Stop background music and play victory music
+                    ResourceManager::getInstance().stopMusic();
+                }
                 else
                     manager.push(std::make_unique<LevelSelectState>(manager));
                 pendingStateChange = false;
@@ -220,7 +235,7 @@ void Kingdom1LevelState::update(float dt) {
 
     //switch to gameoverstate if player dies
     if (player.dead()) {
-        //manager.pop();
+        ResourceManager::getInstance().playSound("resources/sounds/Jump.wav", 100.0f);
         manager.push(std::make_unique<GameOverState>(manager, kingdom, level, levelNumber));
         return;
     }
@@ -231,7 +246,7 @@ void Kingdom1LevelState::update(float dt) {
         // check intersection
         if (playerBounds.intersects(p))
         {
-            // ---- LANDING ON PLATFORM (coming from above) ----
+            // LANDING ON PLATFORM (coming from above)
             if (playerVel.y > 0 && playerBounds.top + playerBounds.height - 5 < p.top)
             {
                 // snap player on top of platform

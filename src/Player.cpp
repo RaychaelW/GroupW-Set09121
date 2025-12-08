@@ -84,6 +84,7 @@ void Player::handleInput() {
         velocity.y = -jumpForce;
         isGrounded = false;
         currentMove = MoveType::Jump;
+        ResourceManager::getInstance().playSound("resources/sounds/Jump.wav", 90.0f);
         return;
 
     }
