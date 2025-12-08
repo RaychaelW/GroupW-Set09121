@@ -31,6 +31,7 @@ private:
     sf::Text title;
     sf::Text playText;
     sf::Text settingsText;
+    sf::Text howToPlayText;
     sf::Text quitText;
 
     std::vector<sf::Text*> options;

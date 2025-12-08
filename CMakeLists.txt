@@ -57,6 +57,8 @@ add_executable(the_quest
         src/Kingdom1LevelState.hpp
         src/Kingdom2LevelState.cpp
         src/Kingdom2LevelState.hpp
+        src/HowToPlayState.cpp
+        src/HowToPlayState.hpp
 )
 
 # Include SFML headers
