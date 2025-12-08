@@ -6,6 +6,8 @@
 #include "GameOverState.hpp"
 #include "Kingdom1LevelState.hpp"
 #include "KingdomSelectionState.hpp"
+#include "SoundManager.hpp"
+#include "BackGroundMusic.hpp"
 
 
 GameState::GameState(StateManager& manager)
@@ -57,6 +59,14 @@ GameState::GameState(StateManager& manager)
 
     //full map view
     full = map.getFullMapView();
+
+    // Load game sounds
+    auto& soundManager = SoundManager::getInstance();
+    soundManager.loadSound("coin_collect", "resources/sounds/Coin.wav");
+    soundManager.loadSound("jump", "resources/sounds/Jump.wav");
+    soundManager.loadSound("level_complete", "resources/sounds/LevelComplete.wav");
+
+    
 }
 
 
@@ -86,6 +96,9 @@ void GameState::handleInput(sf::RenderWindow& window) {
                 float spawnY = pos.y + player.getSprite().getGlobalBounds().height * 0.65f;
 
                 projectiles.emplace_back(spawnX, spawnY, dir, projectileTexture);
+
+                // Add projectile sound
+                SoundManager::getInstance().playSound("projectile", 70.f);
             }
         }
 
@@ -133,6 +146,10 @@ void GameState::update(float dt) {
         if (playerBounds.intersects(*it)) {
             std::cout << "Collected coin!\n";
             player.addCoin(); //increase coin count
+
+            // Add coin collection sound
+            SoundManager::getInstance().playSound("collected_coin", 70.f);
+
             it = map.collectables.erase(it); //remove coin
         }
         else ++it;
@@ -145,6 +162,10 @@ void GameState::update(float dt) {
         if (playerBounds.intersects(e.getBounds())) {
             std::cout << "Player hit by enemy!\n";
             player.damage();
+
+            // Add player hurt sound
+            SoundManager::getInstance().playSound("player_hurt", 80.f);
+
             // player bounces back
             sf::Vector2f knockback = player.isFacingRight() ? sf::Vector2f(-30.f, -20.f) : sf::Vector2f(30.f, -20.f);
             player.getSprite().move(knockback);
@@ -162,13 +183,14 @@ void GameState::update(float dt) {
             if (p->getBounds().intersects(e->getBounds())) {
                 std::cout << "Enemy has been defeated!\n";
 
+                // Add enemy hit sound
+                SoundManager::getInstance().playSound("enemy_hit", 80.f);
+
                 // Remove enemy
                 e = enemies.erase(e);
-
                 // Remove projectile
                 p = projectiles.erase(p);
                 projectileRemoved = true;
-
                 break;  // break out of enemy loop — projectile is gone
             } else {
                 ++e;
@@ -186,6 +208,10 @@ void GameState::update(float dt) {
     for (const sf::FloatRect& door : map.getLevelLogic()) {
         if (playerBounds.intersects(door)) {
             std::cout << "Level Complete!\n";
+
+            // Add level complete sound
+            SoundManager::getInstance().playSound("level_complete", 90.f);
+
             if (!pendingStateChange) {
                 pendingStateChange = true;
                 stateDelayClock.restart();
@@ -202,6 +228,9 @@ void GameState::update(float dt) {
 
     //switch to gameoverstate if player dies
     if (player.dead()) {
+        // Add death sound
+        SoundManager::getInstance().playSound("death", 100.f);
+
         //manager.pop();
         manager.push(std::make_unique<GameOverState>(manager, kingdom, level, levelNumber));
         return;

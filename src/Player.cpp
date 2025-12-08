@@ -1,15 +1,11 @@
-//
-// Created by prais on 21/11/2025.
-//
-
 #include "Player.hpp"
 #include <SFML/Graphics.hpp>
 #include "ResourceManager.hpp"
 #include <iostream>
 #include <tmxlite/Map.hpp>
-
 #include "Projectile.hpp"
 #include "Tilemap.hpp"
+#include "SoundManager.hpp"
 
 
 Player::Player() {
@@ -80,13 +76,21 @@ void Player::handleInput() {
     }
 
     //jump
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+    static bool spaceWasPressed = false;
+    bool spaceIsPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Space);
+    
+    if (spaceIsPressed && !spaceWasPressed && isGrounded) {
         velocity.y = -jumpForce;
         isGrounded = false;
         currentMove = MoveType::Jump;
-        return;
-
+        
+        // Add jump sound
+        SoundManager::getInstance().playSound("jump", 60.f);
+        
+        spaceWasPressed = true;
     }
+    
+    spaceWasPressed = spaceIsPressed;
 
     if (!isGrounded) {
         currentMove = MoveType::Jump;
@@ -140,6 +144,9 @@ void Player::update(float dt) {
 int Player::addCoin() {
     coins++;
 
+    // Add coin collection sound
+    SoundManager::getInstance().playSound("coin_collect", 70.f);
+    
     std::cout << "Coins: " << coins << "\n";
     return coins;
 }
@@ -154,6 +161,10 @@ void Player::damage() {
     lives -= 1;
     isHit = true;
     hitTimer = hitDuration;
+    
+    // Add hurt sound
+    SoundManager::getInstance().playSound("player_hurt", 80.f);
+    
     //bounce back after hit
     knockBackVelocity = sf::Vector2f( facingRight ? -150.f : 150.f, -120.f);
     sprite.setTextureRect(hitFrame);
@@ -165,6 +176,8 @@ void Player::damage() {
 
     if (lives == 0) {
         isDead = true;
+        // Add death sound
+        SoundManager::getInstance().playSound("death", 100.f);
         std::cout << "Player is dead.\n";
         return;
     }
