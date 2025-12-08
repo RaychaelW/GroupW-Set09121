@@ -76,21 +76,15 @@ void Player::handleInput() {
     }
 
     //jump
-    static bool spaceWasPressed = false;
-    bool spaceIsPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Space);
-    
-    if (spaceIsPressed && !spaceWasPressed && isGrounded) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) ){
         velocity.y = -jumpForce;
         isGrounded = false;
         currentMove = MoveType::Jump;
         
         // Add jump sound
-        SoundManager::getInstance().playSound("jump", 60.f);
-        
-        spaceWasPressed = true;
+        //SoundManager::getInstance().playSound("jump", 60.f);
+
     }
-    
-    spaceWasPressed = spaceIsPressed;
 
     if (!isGrounded) {
         currentMove = MoveType::Jump;
