@@ -71,6 +71,15 @@ private:
     sf::Clock clock; //measure time between heart damages
     int coinCount = 0;
 
+    //Pause
+    bool isPaused = false;
+    sf::Text pauseText;
+    sf::RectangleShape pauseOverlay;
+    sf::Texture pauseIconTexture;
+    sf::Sprite pauseIconSprite;
+    int pauseMenuIndex = 0;
+    sf::Text pauseOptions[3];
+
     ResourceManager& resources = ResourceManager::getInstance();
 };
 
