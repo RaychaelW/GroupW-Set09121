@@ -34,7 +34,8 @@ The purpose of this project is to develop C++ programming skills using **SFML** 
    make
    ./the_quest
 
-   ## 🧩 Additional Help
+
+## 🧩 Additional Help
 If you encounter this error:
 
 > Failed to load font or texture
