@@ -6,7 +6,20 @@
 #include "Projectile.hpp"
 #include "Tilemap.hpp"
 #include "SoundManager.hpp"
+#include "GlobalSettings.hpp"
 
+// Helper function for Player class
+void playSoundWithPlayerSettings(sf::Sound& sound, float baseVolume) {
+    auto& settings = GlobalSettings::getInstance();
+
+    if (!settings.isSFXOn()) {
+        return; // Don't play sound if SFX is off
+    }
+
+    float actualVolume = baseVolume * (settings.getMasterVolume() / 100.0f);
+    sound.setVolume(actualVolume);
+    sound.play();
+}
 
 Player::Player() {
     texture = ResourceManager::getInstance().getTexture("resources/tilesets/Sprites/Spritesheets/spritesheet-characters-default.png");
@@ -83,9 +96,7 @@ void Player::handleInput() {
         velocity.y = -jumpForce;
         isGrounded = false;
         currentMove = MoveType::Jump;
-        
-        // Add jump sound
-        SoundManager::getInstance().playSound("jump", 60.f);
+
         
         spaceWasPressed = true;
     }
@@ -144,12 +155,11 @@ void Player::update(float dt) {
 int Player::addCoin() {
     coins++;
 
-    // Add coin collection sound
-    SoundManager::getInstance().playSound("coin_collect", 70.f);
     
     std::cout << "Coins: " << coins << "\n";
     return coins;
 }
+
 
 
 void Player::damage() {
@@ -162,9 +172,6 @@ void Player::damage() {
     isHit = true;
     hitTimer = hitDuration;
     
-    // Add hurt sound
-    SoundManager::getInstance().playSound("player_hurt", 80.f);
-    
     //bounce back after hit
     knockBackVelocity = sf::Vector2f( facingRight ? -150.f : 150.f, -120.f);
     sprite.setTextureRect(hitFrame);
@@ -176,9 +183,6 @@ void Player::damage() {
 
     if (lives == 0) {
         isDead = true;
-        // Add death sound
-        SoundManager::getInstance().playSound("death", 100.f);
-        std::cout << "Player is dead.\n";
         return;
     }
 

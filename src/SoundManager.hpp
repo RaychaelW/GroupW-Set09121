@@ -11,18 +11,22 @@ private:
     std::map<std::string, sf::SoundBuffer> buffers;
     std::vector<sf::Sound> activeSounds;
     float masterVolume;
+    std::string basePath;
 
 public:
     static SoundManager& getInstance();
 
+    // Make sure all these methods are declared
     void loadSound(const std::string& name, const std::string& filename);
-    void playSound(const std::string& name, float volume = 100.f, float pitch = 1.f);
-    void stopAllSounds();
-    
+
+    // Two overloaded playSound methods
+    void playSound(const std::string& filename, float volume = 100.f, float pitch = 1.f);
+    void playSound(const std::string& name, float volume = 100.f);
+
+    void cleanup();  // Make sure this is declared
+
     void setMasterVolume(float volume);
     float getMasterVolume() const;
-    
-    void cleanup();
     
 private:
     SoundManager();

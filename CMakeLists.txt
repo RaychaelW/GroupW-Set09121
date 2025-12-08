@@ -63,6 +63,8 @@ add_executable(the_quest
         src/SoundManager.hpp
         src/BackGroundMusic.cpp
         src/BackGroundMusic.hpp
+        src/GlobalSettings.cpp
+        src/GlobalSettings.hpp
 )
 
 # Include SFML headers

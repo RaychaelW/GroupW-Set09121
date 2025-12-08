@@ -1,14 +1,44 @@
 #include "MainMenuState.hpp"
 #include "GameState.hpp"
-//#include "SettingsState"
+#include "SoundManager.hpp"
 #include <iostream>
-
 #include "HowToPlayState.hpp"
 #include "KingdomSelectionState.hpp"
 #include "SettingsState.hpp"
 #include <SFML/Audio.hpp>
 #include "BackGroundMusic.hpp"
+#include <fstream>
 
+// Function to load settings from file
+void loadAndApplySettings() {
+    std::ifstream in("config/settings.cfg");
+    if (!in) {
+        std::cout << "Settings file not found, using defaults" << std::endl;
+        return;
+    }
+
+    std::string line;
+    int masterVolume = 100;
+    int musicOn = 1;
+    int sfxOn = 1;
+
+    while (std::getline(in, line)) {
+        if (line.rfind("masterVolume=", 0) == 0)
+            masterVolume = std::stoi(line.substr(13));
+        if (line.rfind("musicOn=", 0) == 0)
+            musicOn = std::stoi(line.substr(8));
+        if (line.rfind("sfxOn=", 0) == 0)
+            sfxOn = std::stoi(line.substr(6));
+    }
+
+    // Apply to SoundManager
+    auto& soundManager = SoundManager::getInstance();
+    soundManager.setMasterVolume(static_cast<float>(masterVolume));
+
+
+    std::cout << "Applied settings: Master=" << masterVolume
+              << ", SFX=" << (sfxOn ? "On" : "Off") << std::endl;
+}
 MainMenuState::MainMenuState(StateManager& manager)
     : manager(manager){
 
@@ -63,6 +93,18 @@ MainMenuState::MainMenuState(StateManager& manager)
 
     updateSelection();
 
+    loadAndApplySettings();
+
+    // BACKGROUND MUSIC - Apply music setting
+    static sf::Music backgroundMusic;
+    static bool musicLoaded = false;
+    if (!musicLoaded) {
+        std::vector<std::string> musicPaths = {
+            "resources/sounds/GameBg.wav",
+            "../resources/sounds/GameBg.wav",
+            "../../resources/sounds/GameBg.wav",
+        };
+    }
     // START BACKGROUND MUSIC
     auto& bgMusic = BackgroundMusic::getInstance();
     bgMusic.load("resources/sounds/GameBg.wav");
@@ -85,6 +127,20 @@ void MainMenuState::handleInput(sf::RenderWindow& window) {
                 selectedIndex = (selectedIndex - 1 + options.size()) % options.size();
                 updateSelection();
 
+                // CHECK SFX SETTING BEFORE PLAYING
+                bool sfxEnabled = true;
+                std::ifstream settings("config/settings.cfg");
+                if (settings) {
+                    std::string line;
+                    while (std::getline(settings, line)) {
+                        if (line.rfind("sfxOn=", 0) == 0) {
+                            sfxEnabled = (std::stoi(line.substr(6)) != 0);
+                            break;
+                        }
+                    }
+                }
+
+
                 // PLAY SOUND
                 static sf::SoundBuffer jumpBuffer;
                 static bool jumpLoaded = false;
@@ -93,8 +149,6 @@ void MainMenuState::handleInput(sf::RenderWindow& window) {
                 if (!jumpLoaded) {
                     // Try multiple paths
                     std::vector<std::string> jumpPaths = {
-                        "../../resources/sounds/Jump.wav",
-                        "../resources/sounds/Jump.wav",
                         "resources/sounds/Jump.wav",
                         "/Users/tanatswamlandeli/Documents/GroupW-Set09121/resources/sounds/Jump.wav"
                     };
@@ -158,7 +212,7 @@ void MainMenuState::handleInput(sf::RenderWindow& window) {
                 if (!coinLoaded) {
                     std::vector<std::string> coinPaths = {
                         "resources/sounds/Coin.wav",
-                        "/Users/tanatswamlandeli/Documents/GroupW-Set09121/resources/sounds/Coin.wav"
+                        "resources/sounds/Coin.wav"
                     };
 
                     for (const auto& path : coinPaths) {

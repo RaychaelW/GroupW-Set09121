@@ -1,6 +1,8 @@
 #include "SettingsState.hpp"
 #include <iostream>
 #include <fstream>
+#include <SFML/Audio.hpp>
+#include "GlobalSettings.hpp"
 
 #include "MainMenuState.hpp"
 
@@ -109,8 +111,8 @@ void SettingsState::handleInput(sf::RenderWindow& window)
 
             // ESC = Go Back
             if (event.key.code == sf::Keyboard::Escape) {
-                applySettings();
                 manager.push(std::make_unique<MainMenuState>(manager));
+                return;
             }
 
             // Menu navigation
@@ -128,17 +130,27 @@ void SettingsState::handleInput(sf::RenderWindow& window)
             bool left  = (event.key.code == sf::Keyboard::Left);
 
             if (right || left) {
+                auto& settings = GlobalSettings::getInstance();
 
                 if (selectedIndex == 0) {
-                    masterVolume += (right ? 5 : -5);
-
-                    // Manual clamp
-                    if (masterVolume < 0) masterVolume = 0;
-                    if (masterVolume > 100) masterVolume = 100;
+                    int newVolume = masterVolume + (right ? 5 : -5);
+                    if (newVolume < 0) newVolume = 0;
+                    if (newVolume > 100) newVolume = 100;
+                    masterVolume = newVolume;
+                    settings.setMasterVolume(masterVolume);
                 }
-                else if (selectedIndex == 1) musicOn = !musicOn;
-                else if (selectedIndex == 2) sfxOn = !sfxOn;
-                else if (selectedIndex == 3) fullscreen = !fullscreen;
+                else if (selectedIndex == 1) {
+                    musicOn = !musicOn;
+                    settings.setMusicOn(musicOn);
+                }
+                else if (selectedIndex == 2) {
+                    sfxOn = !sfxOn;
+                    settings.setSFXOn(sfxOn);
+                }
+                else if (selectedIndex == 3) {
+                    fullscreen = !fullscreen;
+                    settings.setFullscreen(fullscreen);
+                }
 
                 optionValues[0] = std::to_string(masterVolume);
                 optionValues[1] = musicOn ? "On" : "Off";
@@ -148,7 +160,6 @@ void SettingsState::handleInput(sf::RenderWindow& window)
 
             // ENTER KEY
             if (event.key.code == sf::Keyboard::Enter) {
-
                 // Reset progress
                 if (selectedIndex == 4) {
                     std::ofstream ofs("save/progress.dat");
@@ -156,8 +167,6 @@ void SettingsState::handleInput(sf::RenderWindow& window)
                     ofs.close();
                     optionValues[4] = "Progress Reset!";
                 }
-
-                applySettings();
             }
         }
     }
@@ -165,8 +174,7 @@ void SettingsState::handleInput(sf::RenderWindow& window)
 
 void SettingsState::update(float dt) {}
 
-void SettingsState::render(sf::RenderWindow& window)
-{
+void SettingsState::render(sf::RenderWindow& window) {
     // Draw background and grid
     window.draw(backgroundSprite);
     window.draw(gridSprite);

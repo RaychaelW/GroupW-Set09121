@@ -6,12 +6,41 @@
 #include "GameOverState.hpp"
 #include "Kingdom1LevelState.hpp"
 #include "KingdomSelectionState.hpp"
+#include <SFML/Audio.hpp>
 #include "SoundManager.hpp"
-#include "BackGroundMusic.hpp"
+#include "GlobalSettings.hpp"
 
+// Helper function to play sounds with settings applied
+void playSoundWithSettings(sf::Sound& sound, float baseVolume) {
+    auto& settings = GlobalSettings::getInstance();
+
+    // Check if SFX is enabled
+    if (!settings.isSFXOn()) {
+        return; // Don't play sound if SFX is off
+    }
+
+    // Calculate actual volume based on master volume
+    float actualVolume = baseVolume * (settings.getMasterVolume() / 100.0f);
+
+    // Apply volume and play
+    sound.setVolume(actualVolume);
+    sound.play();
+
+    // Debug output
+    // std::cout << "Playing sound: base=" << baseVolume << ", actual=" << actualVolume
+    //           << ", masterVol=" << settings.getMasterVolume()
+    //           << ", SFX=" << (settings.isSFXOn() ? "ON" : "OFF") << std::endl;
+}
+
+// Global background music (shared across all states)
+static sf::Music* globalBackgroundMusic = nullptr;
 
 GameState::GameState(StateManager& manager)
     : manager(manager) {
+
+    // Load settings first
+    auto& settings = GlobalSettings::getInstance();
+    settings.load();
 
     if (!map.load("resources/tilemaps/lvl1.tmx")) {
         std::cerr << " ERROR: Failed to load tilemap in Gamestate\n";
@@ -60,21 +89,86 @@ GameState::GameState(StateManager& manager)
     //full map view
     full = map.getFullMapView();
 
-    // Load game sounds
-    auto& soundManager = SoundManager::getInstance();
-    soundManager.loadSound("coin_collect", "resources/sounds/Coin.wav");
-    soundManager.loadSound("jump", "resources/sounds/Jump.wav");
-    soundManager.loadSound("level_complete", "resources/sounds/LevelComplete.wav");
+    // BACKGROUND MUSIC - Shared across all states
+    if (!globalBackgroundMusic) {
+        globalBackgroundMusic = new sf::Music();
 
-    
+        std::vector<std::string> musicPaths = {
+            "../../resources/sounds/GameBg.wav",
+            "../resources/sounds/GameBg.wav",
+            "resources/sounds/GameBg.wav"
+        };
+
+        bool musicLoaded = false;
+        for (const auto& path : musicPaths) {
+            if (globalBackgroundMusic->openFromFile(path)) {
+                musicLoaded = true;
+                std::cout << "Background music loaded from: " << path << std::endl;
+                break;
+            }
+        }
+
+        if (!musicLoaded) {
+            // Try absolute path as last resort
+            std::string absolutePath = "/Users/tanatswamlandeli/Documents/GroupW-Set09121/resources/sounds/GameBg.wav";
+            if (globalBackgroundMusic->openFromFile(absolutePath)) {
+                std::cout << "Background music loaded from absolute path" << std::endl;
+            } else {
+                std::cerr << "ERROR: Could not load background music" << std::endl;
+                delete globalBackgroundMusic;
+                globalBackgroundMusic = nullptr;
+            }
+        }
+    }
+
+    // Apply music settings
+    if (globalBackgroundMusic) {
+        globalBackgroundMusic->setLoop(true);
+
+        // Apply volume based on settings
+        float volume = settings.isMusicOn() ? (settings.getMasterVolume() * 0.4f) : 0.0f;
+        globalBackgroundMusic->setVolume(volume);
+
+        if (globalBackgroundMusic->getStatus() != sf::Music::Playing) {
+            globalBackgroundMusic->play();
+        }
+
+        std::cout << "GameState: Music " << (settings.isMusicOn() ? "ON" : "OFF")
+                  << ", Volume: " << volume << std::endl;
+    }
 }
 
 
 void GameState::handleInput(sf::RenderWindow& window) {
-
     sf::Event event{};
 
     while (window.pollEvent(event)) {
+        // Check for fullscreen toggle request
+        auto& settings = GlobalSettings::getInstance();
+        if (settings.needsFullscreenToggle()) {
+            // Store current view
+            sf::View currentView = window.getView();
+
+            // Close and recreate window
+            window.close();
+
+            if (settings.isFullscreen()) {
+                window.create(sf::VideoMode::getDesktopMode(), "THE QUEST", sf::Style::Fullscreen);
+                std::cout << "Switched to Fullscreen" << std::endl;
+            } else {
+                window.create(sf::VideoMode(1280, 720), "THE QUEST", sf::Style::Default);
+                std::cout << "Switched to Windowed" << std::endl;
+            }
+
+            // Restore settings
+            window.setView(currentView);
+            window.setFramerateLimit(60);
+
+            // Reset the flag
+            settings.resetFullscreenToggle();
+
+            return; // Skip rest of input handling this frame
+        }
 
         input.update(); //use Input manager
         player.handleInput(); // let the player read input
@@ -86,6 +180,7 @@ void GameState::handleInput(sf::RenderWindow& window) {
                 window.setView(usingFull ? full : view);
             }
         }
+
         if (event.type == sf::Event::KeyPressed) {
             if (event.key.code == sf::Keyboard::E) {
                 float dir = player.isFacingRight() ? 1.f : -1.f;
@@ -97,8 +192,30 @@ void GameState::handleInput(sf::RenderWindow& window) {
 
                 projectiles.emplace_back(spawnX, spawnY, dir, projectileTexture);
 
-                // Add projectile sound
-                SoundManager::getInstance().playSound("projectile", 70.f);
+                // Add projectile sound - WITH SETTINGS
+                static sf::SoundBuffer projBuffer;
+                static bool projLoaded = false;
+                static sf::Sound projSound;
+
+                if (!projLoaded) {
+                    std::vector<std::string> projPaths = {
+                        "../../resources/sounds/Projectile.wav",
+                        "../resources/sounds/Projectile.wav",
+                        "resources/sounds/Projectile.wav"
+                    };
+
+                    for (const auto& path : projPaths) {
+                        if (projBuffer.loadFromFile(path)) {
+                            projLoaded = true;
+                            projSound.setBuffer(projBuffer);
+                            break;
+                        }
+                    }
+                }
+
+                if (projLoaded) {
+                    playSoundWithSettings(projSound, 70.0f);
+                }
             }
         }
 
@@ -123,6 +240,13 @@ void GameState::handleInput(sf::RenderWindow& window) {
 
 
 void GameState::update(float dt) {
+    // Update background music volume based on settings
+    if (globalBackgroundMusic) {
+        auto& settings = GlobalSettings::getInstance();
+        float volume = settings.isMusicOn() ? (settings.getMasterVolume() * 0.4f) : 0.0f;
+        globalBackgroundMusic->setVolume(volume);
+    }
+
     input.update();
     player.update(dt);
 
@@ -146,9 +270,7 @@ void GameState::update(float dt) {
         if (playerBounds.intersects(*it)) {
             std::cout << "Collected coin!\n";
             player.addCoin(); //increase coin count
-
-            // Add coin collection sound
-            SoundManager::getInstance().playSound("collected_coin", 70.f);
+            // Coin sound is played in Player::addCoin()
 
             it = map.collectables.erase(it); //remove coin
         }
@@ -161,10 +283,7 @@ void GameState::update(float dt) {
 
         if (playerBounds.intersects(e.getBounds())) {
             std::cout << "Player hit by enemy!\n";
-            player.damage();
-
-            // Add player hurt sound
-            SoundManager::getInstance().playSound("player_hurt", 80.f);
+            player.damage(); // Hurt sound is played in Player::damage()
 
             // player bounces back
             sf::Vector2f knockback = player.isFacingRight() ? sf::Vector2f(-30.f, -20.f) : sf::Vector2f(30.f, -20.f);
@@ -183,8 +302,30 @@ void GameState::update(float dt) {
             if (p->getBounds().intersects(e->getBounds())) {
                 std::cout << "Enemy has been defeated!\n";
 
-                // Add enemy hit sound
-                SoundManager::getInstance().playSound("enemy_hit", 80.f);
+                // Add enemy hit sound - WITH SETTINGS
+                static sf::SoundBuffer enemyHitBuffer;
+                static bool enemyHitLoaded = false;
+                static sf::Sound enemyHitSound;
+
+                if (!enemyHitLoaded) {
+                    std::vector<std::string> hitPaths = {
+                        "../../resources/sounds/EnemyHit.wav",
+                        "../resources/sounds/EnemyHit.wav",
+                        "resources/sounds/EnemyHit.wav"
+                    };
+
+                    for (const auto& path : hitPaths) {
+                        if (enemyHitBuffer.loadFromFile(path)) {
+                            enemyHitLoaded = true;
+                            enemyHitSound.setBuffer(enemyHitBuffer);
+                            break;
+                        }
+                    }
+                }
+
+                if (enemyHitLoaded) {
+                    playSoundWithSettings(enemyHitSound, 80.0f);
+                }
 
                 // Remove enemy
                 e = enemies.erase(e);
@@ -209,8 +350,30 @@ void GameState::update(float dt) {
         if (playerBounds.intersects(door)) {
             std::cout << "Level Complete!\n";
 
-            // Add level complete sound
-            SoundManager::getInstance().playSound("level_complete", 90.f);
+            // Add level complete sound - WITH SETTINGS
+            static sf::SoundBuffer levelCompleteBuffer;
+            static bool levelCompleteLoaded = false;
+            static sf::Sound levelCompleteSound;
+
+            if (!levelCompleteLoaded) {
+                std::vector<std::string> completePaths = {
+                    "../../resources/sounds/LevelCompleted.wav",
+                    "../resources/sounds/LevelCompleted.wav",
+                    "resources/sounds/LevelCompleted.wav"
+                };
+
+                for (const auto& path : completePaths) {
+                    if (levelCompleteBuffer.loadFromFile(path)) {
+                        levelCompleteLoaded = true;
+                        levelCompleteSound.setBuffer(levelCompleteBuffer);
+                        break;
+                    }
+                }
+            }
+
+            if (levelCompleteLoaded) {
+                playSoundWithSettings(levelCompleteSound, 90.0f);
+            }
 
             if (!pendingStateChange) {
                 pendingStateChange = true;
@@ -228,8 +391,7 @@ void GameState::update(float dt) {
 
     //switch to gameoverstate if player dies
     if (player.dead()) {
-        // Add death sound
-        SoundManager::getInstance().playSound("death", 100.f);
+        // Death sound is played in Player::damage() when lives reach 0
 
         //manager.pop();
         manager.push(std::make_unique<GameOverState>(manager, kingdom, level, levelNumber));
@@ -312,4 +474,10 @@ void GameState::render(sf::RenderWindow& window) {
     coinText.setPosition(1200.f, 20.f);
     window.draw(coinText);
 
+}
+
+// Clean up global music when game ends
+GameState::~GameState() {
+    // We'll keep the music playing for other states
+    // It will be cleaned up when the program ends
 }

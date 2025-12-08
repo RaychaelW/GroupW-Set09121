@@ -20,6 +20,7 @@
 class GameState : public State {
 public:
     GameState(StateManager& manager);
+    ~GameState();
 
     void handleInput(sf::RenderWindow& window) override;
     void update(float dt) override;
