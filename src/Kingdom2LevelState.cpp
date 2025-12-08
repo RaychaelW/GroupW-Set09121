@@ -6,6 +6,7 @@
 #include "GameOverState.hpp"
 #include "KingdomSelectionState.hpp"
 #include "LevelSelectState.hpp"
+#include "MainMenuState.hpp"
 
 Kingdom2LevelState::Kingdom2LevelState(StateManager& manager, KingdomID kingdom, LevelID level, int levelNumber)
     : manager(manager), levelNumber(levelNumber), kingdom(kingdom), level(level)
@@ -38,6 +39,31 @@ Kingdom2LevelState::Kingdom2LevelState(StateManager& manager, KingdomID kingdom,
     coinSprite.setTexture(*hdCoinTexture);
 
     full = map.getFullMapView();
+
+    isPaused = false;
+    std::string options[3] = {"Resume", "Restart", "Menu"};
+    for (int i = 0; i < 3; ++i) {
+        pauseOptions[i].setFont(font);
+        pauseOptions[i].setString(options[i]);
+        pauseOptions[i].setCharacterSize(40);
+        pauseOptions[i].setFillColor(sf::Color::White);
+        pauseOptions[i].setOutlineColor(sf::Color::Black);
+        pauseOptions[i].setOutlineThickness(2);
+        pauseOptions[i].setPosition(500, 300 + i * 60);
+    }
+
+    // Pause text
+    pauseText.setFont(font);
+    pauseText.setString("PAUSED");
+    pauseText.setCharacterSize(60);
+    pauseText.setFillColor(sf::Color::White);
+    pauseText.setOutlineColor(sf::Color::Black);
+    pauseText.setOutlineThickness(3);
+    pauseText.setPosition(450.f, 150.f);
+
+    // Pause overlay
+    pauseOverlay.setSize(sf::Vector2f(1280.f, 720.f));
+    pauseOverlay.setFillColor(sf::Color(0, 0, 0, 150));
 }
 
 void Kingdom2LevelState::loadLevel() {
@@ -89,16 +115,58 @@ EnemyType Kingdom2LevelState::getEnemyTypeFromGID(uint32_t gid) {
 
 void Kingdom2LevelState::handleInput(sf::RenderWindow& window){
     sf::Event event;
-    while (window.pollEvent(event)) {
+    while (window.pollEvent(event))
+    {
         player.handleInput();
 
         if (event.type == sf::Event::Closed)
             window.close();
 
-        if (event.type == sf::Event::KeyPressed) {
-            if (event.key.code == sf::Keyboard::Escape)
-                manager.push(std::make_unique<KingdomSelectionState>(manager));
+        if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::P) {
+            isPaused = !isPaused;
+            continue; // Skip game logic when paused
+        }
 
+        // when gameplay is paused
+        if (isPaused) {
+            if (event.type == sf::Event::KeyPressed) {
+                if (event.key.code == sf::Keyboard::Up) {
+                        pauseMenuIndex = (pauseMenuIndex + 2) % 3;
+                    }
+                    if (event.key.code == sf::Keyboard::Down) {
+                        pauseMenuIndex = (pauseMenuIndex + 1) % 3;
+                    }
+
+                    if (event.key.code == sf::Keyboard::Enter) {
+
+                        // resume
+                        if (pauseMenuIndex == 0) {
+                            isPaused = false;
+                        }
+
+                        // restart
+                        else if (pauseMenuIndex == 1) {
+                            if (kingdom == KingdomID::Kingdom1) {
+                                manager.push(std::make_unique<Kingdom1LevelState>(manager, kingdom, level, levelNumber));
+                            } else if (kingdom == KingdomID::Kingdom2) {
+                                manager.push(std::make_unique<Kingdom2LevelState>(manager, kingdom, level, levelNumber));
+                            }
+                            return;
+                        }
+
+                        // menu
+                        else if (pauseMenuIndex == 2) {
+                            manager.push(std::make_unique<MainMenuState>(manager));
+                            return;
+                        }
+                    }
+            }
+            // Do not continue game logic when paused
+            continue;
+        }
+
+        if (event.type == sf::Event::KeyPressed)
+        {
             if (event.key.code == sf::Keyboard::E) {
 
                 float dir = player.isFacingRight() ? 1.f : -1.f;
@@ -114,6 +182,10 @@ void Kingdom2LevelState::handleInput(sf::RenderWindow& window){
 }
 
 void Kingdom2LevelState::update(float dt) {
+    if (isPaused) {
+        return;
+    }
+
     input.update();
     player.update(dt);
 
@@ -297,4 +369,24 @@ void Kingdom2LevelState::render(sf::RenderWindow& window) {
 
     coinText.setPosition(1200.f, 20.f);
     window.draw(coinText);
+
+    // Draw pause icon
+    window.draw(pauseIconSprite);
+
+    // Draw pause overlay and text if paused
+    if (isPaused) {
+        window.draw(pauseOverlay);
+        window.draw(pauseText);
+    }
+    if (isPaused) {
+        sf::RectangleShape darken(sf::Vector2f(window.getSize()));
+        darken.setFillColor(sf::Color(0,0,0,150));
+        window.draw(darken);
+
+        for (int i = 0; i < 3; ++i) {
+            pauseOptions[i].setFillColor(i == pauseMenuIndex ? sf::Color::Yellow : sf::Color::White);
+            window.draw(pauseOptions[i]);
+
+        }
+    }
 }
