@@ -4,6 +4,7 @@
 //#include "SettingsState"
 #include <iostream>
 
+#include "HowToPlayState.hpp"
 #include "KingdomSelectionState.hpp"
 #include "SettingsState.hpp"
 
@@ -41,15 +42,23 @@ MainMenuState::MainMenuState(StateManager& manager)
     settingsText.setOutlineThickness(2);
     settingsText.setOutlineColor(sf::Color::Black);
 
+    // How To Play
+    howToPlayText.setFont(font);
+    howToPlayText.setString("How to Play");
+    howToPlayText.setCharacterSize(40);
+    howToPlayText.setPosition(500, 410);
+    howToPlayText.setOutlineThickness(2);
+    howToPlayText.setOutlineColor(sf::Color::Black);
+
     // Quit
     quitText.setFont(font);
     quitText.setString("Quit");
     quitText.setCharacterSize(40);
-    quitText.setPosition(500, 410);
+    quitText.setPosition(500, 490);
     quitText.setOutlineThickness(2);
     quitText.setOutlineColor(sf::Color::Black);
 
-    options = { &playText, &settingsText, &quitText };
+    options = { &playText, &settingsText, &howToPlayText, &quitText };
 
     updateSelection();
 }
@@ -85,6 +94,9 @@ void MainMenuState::handleInput(sf::RenderWindow& window) {
                     manager.push(std::make_unique<SettingsState>(manager));
                 }
                 else if (selectedIndex == 2) {
+                    manager.push(std::make_unique<HowToPlayState>(manager));
+                }
+                else if (selectedIndex == 3) {
                     window.close();
                 }
             }
@@ -99,6 +111,7 @@ void MainMenuState::render(sf::RenderWindow& window) {
     window.draw(title);
     window.draw(playText);
     window.draw(settingsText);
+    window.draw(howToPlayText);
     window.draw(quitText);
 }
 
