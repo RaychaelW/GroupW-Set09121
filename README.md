@@ -22,7 +22,7 @@ The purpose of this project is to develop C++ programming skills using **SFML** 
 
 ---
 
-## 💾 Installing  
+##  Installing  
 1. Download the ZIP file of this repository.  
 2. Extract the files to your PC.  
 3. Open the terminal and enter the following commands:
@@ -33,3 +33,30 @@ The purpose of this project is to develop C++ programming skills using **SFML** 
    cmake ..
    make
    ./the_quest
+
+   ## 🧩 Additional Help
+If you encounter this error:
+
+> Failed to load font or texture
+
+Follow these steps:
+
+1. Copy the **absolute path** to your `resources` folder.  
+2. Open the file that loads textures (for example, `GameState.cpp`).  
+3. Replace the relative path (`resources/...`) with your absolute path.  
+
+---
+
+##  Screenshots
+
+
+##  Credits
+**Developed by Group W – SET09121**  
+- Praise Oguntibeju  
+- Tanatswa Mlandeli  
+- Rachael Wuyep  
+
+**Audio by:** 
+**Font:**   
+**Textures:**  
+
