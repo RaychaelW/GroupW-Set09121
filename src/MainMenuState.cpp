@@ -1,12 +1,13 @@
 #include "MainMenuState.hpp"
 #include "GameState.hpp"
-//#include "KingdomSelectionState"
 //#include "SettingsState"
 #include <iostream>
 
 #include "HowToPlayState.hpp"
 #include "KingdomSelectionState.hpp"
 #include "SettingsState.hpp"
+#include <SFML/Audio.hpp>
+#include "BackGroundMusic.hpp"
 
 MainMenuState::MainMenuState(StateManager& manager)
     : manager(manager){
@@ -61,6 +62,11 @@ MainMenuState::MainMenuState(StateManager& manager)
     options = { &playText, &settingsText, &howToPlayText, &quitText };
 
     updateSelection();
+
+    // START BACKGROUND MUSIC
+    auto& bgMusic = BackgroundMusic::getInstance();
+    bgMusic.load("resources/sounds/GameBg.wav");
+    bgMusic.play(40.0f);  // 40% volume
 }
 
 void MainMenuState::handleInput(sf::RenderWindow& window) {
@@ -78,14 +84,97 @@ void MainMenuState::handleInput(sf::RenderWindow& window) {
             if (event.key.code == sf::Keyboard::Up) {
                 selectedIndex = (selectedIndex - 1 + options.size()) % options.size();
                 updateSelection();
+
+                // PLAY SOUND
+                static sf::SoundBuffer jumpBuffer;
+                static bool jumpLoaded = false;
+                static sf::Sound jumpSound;
+
+                if (!jumpLoaded) {
+                    // Try multiple paths
+                    std::vector<std::string> jumpPaths = {
+                        "../../resources/sounds/Jump.wav",
+                        "../resources/sounds/Jump.wav",
+                        "resources/sounds/Jump.wav",
+                        "/Users/tanatswamlandeli/Documents/GroupW-Set09121/resources/sounds/Jump.wav"
+                    };
+
+                    for (const auto& path : jumpPaths) {
+                        if (jumpBuffer.loadFromFile(path)) {
+                            jumpLoaded = true;
+                            jumpSound.setBuffer(jumpBuffer);
+                            std::cout << "Loaded Jump.wav from: " << path << std::endl;
+                            break;
+                        }
+                    }
+                }
+
+                if (jumpLoaded) {
+                    jumpSound.setVolume(30.0f);
+                    jumpSound.play();
+                }
             }
 
             if (event.key.code == sf::Keyboard::Down) {
                 selectedIndex = (selectedIndex + 1) % options.size();
                 updateSelection();
+
+                // PLAY SOUND - Reuse same jump sound
+                static sf::SoundBuffer jumpBuffer;
+                static bool jumpLoaded = false;
+                static sf::Sound jumpSound;
+
+                if (!jumpLoaded) {
+                    std::vector<std::string> jumpPaths = {
+                        "../../resources/sounds/Jump.wav",
+                        "../resources/sounds/Jump.wav",
+                        "resources/sounds/Jump.wav",
+                        "/Users/tanatswamlandeli/Documents/GroupW-Set09121/resources/sounds/Jump.wav"
+                    };
+
+                    for (const auto& path : jumpPaths) {
+                        if (jumpBuffer.loadFromFile(path)) {
+                            jumpLoaded = true;
+                            jumpSound.setBuffer(jumpBuffer);
+                            std::cout << "Loaded Jump.wav from: " << path << std::endl;
+                            break;
+                        }
+                    }
+                }
+
+                if (jumpLoaded) {
+                    jumpSound.setVolume(30.0f);
+                    jumpSound.play();
+                }
             }
 
             if (event.key.code == sf::Keyboard::Enter) {
+
+                // PLAY CONFIRM SOUND
+                static sf::SoundBuffer coinBuffer;
+                static bool coinLoaded = false;
+                static sf::Sound coinSound;
+
+                if (!coinLoaded) {
+                    std::vector<std::string> coinPaths = {
+                        "resources/sounds/Coin.wav",
+                        "/Users/tanatswamlandeli/Documents/GroupW-Set09121/resources/sounds/Coin.wav"
+                    };
+
+                    for (const auto& path : coinPaths) {
+                        if (coinBuffer.loadFromFile(path)) {
+                            coinLoaded = true;
+                            coinSound.setBuffer(coinBuffer);
+                            std::cout << "Loaded Coin.wav from: " << path << std::endl;
+                            break;
+                        }
+                    }
+                }
+
+                if (coinLoaded) {
+                    coinSound.setVolume(60.0f);
+                    coinSound.play();
+                }
 
                 if (selectedIndex == 0) {
                     manager.push(std::make_unique<KingdomSelectionState>(manager));
@@ -97,6 +186,42 @@ void MainMenuState::handleInput(sf::RenderWindow& window) {
                     manager.push(std::make_unique<HowToPlayState>(manager));
                 }
                 else if (selectedIndex == 3) {
+                    // PLAY DIFFERENT SOUND FOR QUIT
+                    static sf::SoundBuffer jumpBuffer;
+                    static bool jumpLoaded = false;
+                    static sf::Sound quitSound;
+
+                    if (!jumpLoaded) {
+                        std::vector<std::string> jumpPaths = {
+                            "../../resources/sounds/Jump.wav",
+                            "../resources/sounds/Jump.wav",
+                            "resources/sounds/Jump.wav",
+                            "/Users/tanatswamlandeli/Documents/GroupW-Set09121/resources/sounds/Jump.wav"
+                        };
+
+                        for (const auto& path : jumpPaths) {
+                            if (jumpBuffer.loadFromFile(path)) {
+                                jumpLoaded = true;
+                                quitSound.setBuffer(jumpBuffer);
+                                std::cout << "Loaded Jump.wav for quit from: " << path << std::endl;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (jumpLoaded) {
+                        quitSound.setVolume(50.0f);
+                        quitSound.play();
+
+                        BackgroundMusic::getInstance().stop();
+
+                        // Small delay before closing to hear sound
+                        sf::Clock delayClock;
+                        while (delayClock.getElapsedTime().asSeconds() < 0.3f) {
+                            // Wait briefly
+                        }
+                    }
+
                     window.close();
                 }
             }
